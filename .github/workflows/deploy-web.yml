@@ -1,0 +1,54 @@
+name: Deploy Next.js Web
+
+on:
+  push:
+    #  LƯU Ý: Sửa lại thành "main" nếu nhánh chính  là main
+    branches: ["master"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies and Build
+        run: |
+          npm install
+          # GitHub sẽ dùng sức mạnh của nó để build Next.js
+          npm run build
+
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 24700 # Vẫn là chiếc cổng SSH quen thuộc
+          # Chỉ copy những thư mục và file cấu hình cần thiết để chạy Production
+          source: ".next/*,public/*,package.json,package-lock.json,next.config.*"
+          target: "/var/www/nhatdev.top"
+          strip_components: 0
+
+      - name: Start PM2 on VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 24700
+          script: |
+            cd /var/www/nhatdev.top
+            # Chỉ cài các gói thật sự cần thiết cho lúc chạy thực tế (bỏ qua devDependencies)
+            npm install --production
+
+            # Khởi động lại tiến trình PM2, nếu chưa có thì tạo mới
+            pm2 reload blog-nhatdev || pm2 start npm --name "blog-nhatdev" -- start
+
+            # Lưu lại trạng thái để tự động bật lên nếu VPS bị khởi động lại
+            pm2 save
