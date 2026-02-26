@@ -2,7 +2,7 @@ name: Deploy Next.js Web
 
 on:
   push:
-    #  LƯU Ý: Sửa lại thành "main" nếu nhánh chính  là main
+    # LƯU Ý: Sửa lại thành "main" nếu nhánh chính là main
     branches: ["master"]
 
 jobs:
@@ -18,6 +18,9 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies and Build
+        # ĐÂY LÀ PHẦN ĐƯỢC THÊM VÀO ĐỂ NHẬN BIẾN MÔI TRƯỜNG TỪ GITHUB SECRETS
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
         run: |
           npm install
           # GitHub sẽ dùng sức mạnh của nó để build Next.js
@@ -29,7 +32,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           password: ${{ secrets.VPS_PASSWORD }}
-          port: 24700 # Vẫn là chiếc cổng SSH quen thuộc
+          port: 24700
           # Chỉ copy những thư mục và file cấu hình cần thiết để chạy Production
           source: ".next/*,public/*,package.json,package-lock.json,next.config.*"
           target: "/var/www/nhatdev.top"
