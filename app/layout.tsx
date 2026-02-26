@@ -75,8 +75,8 @@ export default function RootLayout({
         {/* FOOTER */}
         <footer className="bg-white border-t py-8 mt-auto">
           <div className="max-w-6xl mx-auto px-6 text-center text-gray-500 text-sm">
-            © {new Date().getFullYear()} NhatDev. Xây dựng bằng Next.js & .NET
-            8.
+            © {new Date().getFullYear()} NhatDev. Xây dựng và quản trị bởi
+            NhatDev. Tất cả quyền được bảo lưu.
           </div>
         </footer>
       </body>
