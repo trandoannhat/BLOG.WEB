@@ -1,8 +1,7 @@
 // app/blog/page.tsx
-import dayjs from "dayjs"; // (Dùng để format ngày tháng cho phù hợp beckend trả về)
+import dayjs from "dayjs";
 import Link from "next/link";
 
-// 1. Định nghĩa kiểu dữ liệu Bài viết & Danh mục
 interface PostDto {
   id: string;
   title: string;
@@ -22,17 +21,14 @@ interface CategoryTreeDto {
   children: CategoryTreeDto[];
 }
 
-// 2. Hàm lấy danh sách bài viết (Có hỗ trợ lọc theo CategoryId)
 async function getPosts(categoryId?: string): Promise<PostDto[]> {
   try {
     let url = `${process.env.NEXT_PUBLIC_API_URL}/Posts?PageSize=20&IsPublished=true`;
     if (categoryId) {
       url += `&CategoryId=${categoryId}`;
     }
-
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return [];
-
     const json = await res.json();
     return json.data || [];
   } catch (error) {
@@ -41,17 +37,13 @@ async function getPosts(categoryId?: string): Promise<PostDto[]> {
   }
 }
 
-// 3. Hàm lấy Cây Danh Mục
 async function getCategoryTree(): Promise<CategoryTreeDto[]> {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/Categories/tree`,
-      {
-        cache: "no-store",
-      },
+      { cache: "no-store" },
     );
     if (!res.ok) return [];
-
     const json = await res.json();
     return json.data || [];
   } catch (error) {
@@ -60,7 +52,6 @@ async function getCategoryTree(): Promise<CategoryTreeDto[]> {
   }
 }
 
-// 4. Component Đệ quy hiển thị 1 nhánh Danh mục (Node)
 const CategoryNode = ({
   category,
   currentCatId,
@@ -73,7 +64,8 @@ const CategoryNode = ({
   return (
     <li className="mb-2">
       <Link
-        href={`/?categoryId=${category.id}`} // Hoặc /blog?categoryId=... tùy vào route của bạn
+        href={`/blog?categoryId=${category.id}`} // ĐÃ FIX: Thêm /blog vào đây
+        scroll={false} // ĐÃ FIX: Chống giật trang
         className={`flex items-center justify-between text-sm py-1.5 px-2 rounded-md transition-colors ${
           isActive
             ? "bg-blue-50 text-blue-700 font-bold"
@@ -86,7 +78,6 @@ const CategoryNode = ({
         </span>
       </Link>
 
-      {/* Nếu có danh mục con thì gọi đệ quy chính nó, lùi vào 1 chút */}
       {category.children && category.children.length > 0 && (
         <ul className="pl-4 mt-1 border-l-2 border-gray-100 ml-2">
           {category.children.map((child) => (
@@ -102,7 +93,6 @@ const CategoryNode = ({
   );
 };
 
-// 5. COMPONENT CHÍNH (PAGE) - NEXT.JS 15 (Awaiting searchParams)
 export default async function BlogPage({
   searchParams,
 }: {
@@ -111,7 +101,6 @@ export default async function BlogPage({
   const resolvedParams = await searchParams;
   const currentCategoryId = resolvedParams.categoryId;
 
-  // Gọi 2 API song song để tối ưu tốc độ load
   const [posts, categories] = await Promise.all([
     getPosts(currentCategoryId),
     getCategoryTree(),
@@ -119,7 +108,6 @@ export default async function BlogPage({
 
   return (
     <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* HEADER TRANG BLOG */}
       <div className="text-center max-w-2xl mx-auto mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
           Blog & Chia sẻ
@@ -131,16 +119,15 @@ export default async function BlogPage({
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
-        {/* === CỘT TRÁI: SIDEBAR DANH MỤC === */}
         <aside className="w-full md:w-1/4 flex-shrink-0">
           <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm sticky top-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4 border-b pb-3">
               Danh mục bài viết
             </h2>
 
-            {/* Nút Xóa bộ lọc (Hiển thị tất cả) */}
             <Link
-              href="/" // Route gốc
+              href="/blog" // ĐÃ FIX: Sửa từ "/" thành "/blog"
+              scroll={false} // ĐÃ FIX: Chống giật trang
               className={`block mb-4 text-sm font-medium py-1.5 px-2 rounded-md ${
                 !currentCategoryId
                   ? "bg-blue-50 text-blue-700 font-bold"
@@ -162,7 +149,6 @@ export default async function BlogPage({
           </div>
         </aside>
 
-        {/* === CỘT PHẢI: DANH SÁCH BÀI VIẾT === */}
         <main className="w-full md:w-3/4">
           {posts.length === 0 ? (
             <div className="text-center text-gray-500 py-20 border-2 border-dashed border-gray-200 rounded-2xl bg-white">
@@ -176,7 +162,6 @@ export default async function BlogPage({
                   key={post.id}
                   className="group flex flex-col bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl hover:border-blue-200 transition-all duration-300"
                 >
-                  {/* ẢNH BÌA BÀI VIẾT */}
                   <div className="relative h-48 w-full bg-gray-100 overflow-hidden border-b border-gray-100">
                     <img
                       src={
@@ -191,13 +176,9 @@ export default async function BlogPage({
                     </div>
                   </div>
 
-                  {/* NỘI DUNG THẺ */}
                   <div className="p-6 flex flex-col flex-1">
                     <div className="flex items-center text-xs text-gray-400 font-medium mb-3 gap-2">
-                      <span>
-                        {/* {new Date(post.createdAt).toLocaleDateString("vi-VN")} */}
-                        {dayjs(post.createdAt).format("DD/MM/YYYY")}
-                      </span>
+                      <span>{dayjs(post.createdAt).format("DD/MM/YYYY")}</span>
                       <span>•</span>
                       <span>{post.viewCount} lượt xem</span>
                     </div>

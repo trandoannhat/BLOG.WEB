@@ -1,10 +1,9 @@
 // app/blog/[slug]/page.tsx
-
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import dayjs from "dayjs"; // ĐÃ THÊM: Import dayjs
 import { PostDto } from "@/types/post.types";
 
-// 1. Hàm lấy chi tiết bài viết
 async function getPostDetail(slug: string): Promise<PostDto | null> {
   try {
     const res = await fetch(
@@ -19,7 +18,6 @@ async function getPostDetail(slug: string): Promise<PostDto | null> {
   }
 }
 
-// 2. Hàm lấy bài viết liên quan (Cùng danh mục)
 async function getRelatedPosts(
   categoryId: string,
   currentPostId: string,
@@ -52,7 +50,6 @@ export default async function BlogPostPage({
     notFound();
   }
 
-  // Gọi API lấy bài viết liên quan sau khi đã biết CategoryId của bài hiện tại
   const relatedPosts = await getRelatedPosts(post.categoryId, post.id);
 
   return (
@@ -83,7 +80,8 @@ export default async function BlogPostPage({
             </span>
           </span>
           <span>•</span>
-          <span>{new Date(post.createdAt).toLocaleDateString("vi-VN")}</span>
+          <span>{dayjs(post.createdAt).format("DD/MM/YYYY")}</span>{" "}
+          {/* ĐÃ FIX: dùng dayjs */}
           <span>•</span>
           <span>{post.viewCount} lượt xem</span>
         </div>
@@ -138,7 +136,8 @@ export default async function BlogPostPage({
                     {related.title}
                   </h4>
                   <div className="text-xs text-gray-500 mt-auto">
-                    {new Date(related.createdAt).toLocaleDateString("vi-VN")}
+                    {dayjs(related.createdAt).format("DD/MM/YYYY")}{" "}
+                    {/* ĐÃ FIX: dùng dayjs */}
                   </div>
                 </div>
               </Link>
