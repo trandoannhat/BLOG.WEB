@@ -1,14 +1,14 @@
-"use client"; // Bắt buộc để dùng useState và usePathname
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "./ThemeToggle"; // 👇 IMPORT NÚT TOGGLE
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname(); // Lấy URL hiện tại để xử lý Active Menu
+  const pathname = usePathname();
 
-  // Danh sách menu
   const navLinks = [
     { name: "Trang chủ", path: "/" },
     { name: "Dự án", path: "/projects" },
@@ -17,17 +17,18 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50 transition-colors duration-300">
+    // 👇 Thêm dark:bg-gray-900 và dark:border-gray-800
+    <header className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-sm sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* 1. LOGO */}
+        {/* LOGO */}
         <Link
           href="/"
           className="text-2xl font-black text-blue-600 tracking-tight flex-shrink-0"
         >
-          NhatDev<span className="text-gray-800">.</span>
+          NhatDev<span className="text-gray-800 dark:text-white">.</span>
         </Link>
 
-        {/* 2. MENU DESKTOP */}
+        {/* MENU DESKTOP */}
         <nav className="hidden md:flex gap-8 items-center">
           {navLinks.map((link) => {
             const isActive =
@@ -39,8 +40,8 @@ export default function Navbar() {
                 href={link.path}
                 className={`font-medium transition-colors ${
                   isActive
-                    ? "text-blue-600 font-bold" // Màu khi Active
-                    : "text-gray-600 hover:text-blue-600"
+                    ? "text-blue-600 dark:text-blue-400 font-bold"
+                    : "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                 }`}
               >
                 {link.name}
@@ -49,62 +50,70 @@ export default function Navbar() {
           })}
         </nav>
 
-        {/* 3. NÚT ĐĂNG NHẬP / ĐĂNG KÝ (DESKTOP) */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* NÚT CHỨC NĂNG (DESKTOP) */}
+        <div className="hidden md:flex items-center gap-4">
+          {/* 👇 GẮN NÚT TOGGLE VÀO ĐÂY */}
+          <ThemeToggle />
+
           <Link
             href="/login"
-            className="text-sm font-semibold text-gray-700 hover:text-blue-600 transition-colors px-3 py-2"
+            className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors px-2"
           >
             Đăng nhập
           </Link>
           <Link
             href="/register"
-            className="text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all shadow-sm hover:shadow-md"
+            className="text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all shadow-sm"
           >
             Đăng ký
           </Link>
         </div>
 
-        {/* 4. NÚT MỞ MENU MOBILE (HAMBURGER ICON) */}
-        <button
-          className="md:hidden p-2 text-gray-600 hover:text-blue-600 transition-colors"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? (
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          ) : (
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          )}
-        </button>
+        {/* NÚT MOBILE MENU & TOGGLE */}
+        <div className="md:hidden flex items-center gap-3">
+          {/* Mobile cũng cần nút Toggle */}
+          <ThemeToggle />
+
+          <button
+            className="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ) : (
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* 5. MENU MOBILE (Sẽ xổ xuống khi bấm nút) */}
+      {/* MENU MOBILE KHUNG XỔ XUỐNG */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100 shadow-lg absolute w-full left-0">
+        <div className="md:hidden bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-lg absolute w-full left-0 transition-colors">
           <div className="px-4 pt-2 pb-6 flex flex-col gap-2">
             {navLinks.map((link) => {
               const isActive =
@@ -114,11 +123,11 @@ export default function Navbar() {
                 <Link
                   key={link.path}
                   href={link.path}
-                  onClick={() => setIsMobileMenuOpen(false)} // Bấm xong tự đóng
+                  onClick={() => setIsMobileMenuOpen(false)}
                   className={`block px-3 py-2 rounded-md font-medium ${
                     isActive
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-blue-600"
+                      ? "bg-blue-50 dark:bg-gray-800 text-blue-600 dark:text-blue-400"
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   }`}
                 >
                   {link.name}
@@ -126,10 +135,10 @@ export default function Navbar() {
               );
             })}
 
-            <div className="mt-4 pt-4 border-t border-gray-100 flex flex-col gap-3 px-3">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3 px-3">
               <Link
                 href="/login"
-                className="text-center font-semibold text-gray-700 border border-gray-300 py-2 rounded-lg hover:bg-gray-50"
+                className="text-center font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 Đăng nhập
               </Link>
