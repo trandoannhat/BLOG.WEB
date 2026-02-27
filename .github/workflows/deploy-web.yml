@@ -27,7 +27,8 @@ jobs:
           npm run build
 
       - name: Deploy to VPS
-        uses: appleboy/scp-action@master
+        # 👇 ĐÃ SỬA: Dùng bản v0.1.7 thay vì master
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
@@ -39,7 +40,8 @@ jobs:
           strip_components: 0
 
       - name: Start PM2 on VPS
-        uses: appleboy/ssh-action@master
+        # 👇 ĐÃ SỬA: Dùng bản v1.0.3 thay vì master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
