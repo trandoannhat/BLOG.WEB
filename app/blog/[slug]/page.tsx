@@ -1,7 +1,8 @@
 // app/blog/[slug]/page.tsx
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import dayjs from "dayjs"; // ĐÃ THÊM: Import dayjs
+import dayjs from "dayjs";
 import { PostDto } from "@/types/post.types";
 
 async function getPostDetail(slug: string): Promise<PostDto | null> {
@@ -30,13 +31,48 @@ async function getRelatedPosts(
     if (!res.ok) return [];
     const json = await res.json();
     const posts = json.data || [];
-
-    // Lọc bỏ bài viết hiện tại và lấy tối đa 3 bài
     return posts.filter((p: PostDto) => p.id !== currentPostId).slice(0, 3);
   } catch (error) {
     return [];
   }
 }
+
+// 👇 ĐOẠN ĐƯỢC THÊM VÀO: Hàm tạo SEO tự động cho bài viết
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPostDetail(slug);
+
+  if (!post) {
+    return { title: "Không tìm thấy bài viết | NhatDev" };
+  }
+
+  return {
+    title: `${post.title} | NhatDev`,
+    description: post.summary,
+    openGraph: {
+      title: post.title,
+      description: post.summary,
+      url: `https://nhatdev.top/blog/${post.slug}`,
+      siteName: "NhatDev Blog",
+      images: [
+        {
+          url: post.thumbnailUrl || "https://nhatdev.top/default-og-image.jpg",
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+      type: "article",
+      publishedTime: post.createdAt,
+      authors: [post.authorName || "NhatDev"],
+    },
+  };
+}
+// 👆 KẾT THÚC PHẦN THÊM VÀO
 
 export default async function BlogPostPage({
   params,
@@ -61,7 +97,6 @@ export default async function BlogPostPage({
         &larr; Quay lại danh sách
       </Link>
 
-      {/* HEADER BÀI VIẾT */}
       <header className="mb-10 text-center">
         <Link
           href={`/blog?categoryId=${post.categoryId}`}
@@ -80,14 +115,12 @@ export default async function BlogPostPage({
             </span>
           </span>
           <span>•</span>
-          <span>{dayjs(post.createdAt).format("DD/MM/YYYY")}</span>{" "}
-          {/* ĐÃ FIX: dùng dayjs */}
+          <span>{dayjs(post.createdAt).format("DD/MM/YYYY")}</span>
           <span>•</span>
           <span>{post.viewCount} lượt xem</span>
         </div>
       </header>
 
-      {/* ẢNH BÌA */}
       {post.thumbnailUrl && (
         <div className="w-full h-[400px] md:h-[500px] relative rounded-2xl overflow-hidden mb-12 shadow-md">
           <img
@@ -98,17 +131,11 @@ export default async function BlogPostPage({
         </div>
       )}
 
-      {/* NỘI DUNG CHÍNH */}
       <div
-        className="prose prose-lg max-w-none text-gray-800 
-                   prose-headings:text-gray-900 prose-headings:font-bold
-                   prose-a:text-blue-600 hover:prose-a:text-blue-500
-                   prose-img:rounded-xl prose-img:mx-auto prose-img:shadow-sm
-                   mb-20"
+        className="prose prose-lg max-w-none text-gray-800 prose-headings:text-gray-900 prose-headings:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-500 prose-img:rounded-xl prose-img:mx-auto prose-img:shadow-sm mb-20"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
 
-      {/* BÀI VIẾT LIÊN QUAN */}
       {relatedPosts.length > 0 && (
         <section className="border-t border-gray-200 pt-12">
           <h3 className="text-2xl font-bold text-gray-900 mb-8">
@@ -136,8 +163,7 @@ export default async function BlogPostPage({
                     {related.title}
                   </h4>
                   <div className="text-xs text-gray-500 mt-auto">
-                    {dayjs(related.createdAt).format("DD/MM/YYYY")}{" "}
-                    {/* ĐÃ FIX: dùng dayjs */}
+                    {dayjs(related.createdAt).format("DD/MM/YYYY")}
                   </div>
                 </div>
               </Link>

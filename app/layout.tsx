@@ -3,14 +3,20 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
-// 👇 1. IMPORT THEME PROVIDER VỪA TẠO
 import { ThemeProvider } from "@/components/ThemeProvider";
+
+// 👇 THÊM IMPORT THƯ VIỆN GOOGLE ANALYTICS
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "NhatDev | Software Engineer & Tech Lead",
   description: "Trang blog cá nhân và portfolio của NhatDev",
+  // 👇 NƠI ĐIỀN MÃ XÁC MINH GOOGLE SEARCH CONSOLE
+  verification: {
+    google: "GBMNwm1BLNsPhjR3cJE4iNw3AsXEYSKPfMoItU65Bm0",
+  },
 };
 
 export default function RootLayout({
@@ -20,12 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      {/* 👇 2. Đổi bg-gray-50 thành dark:bg-gray-900 để màn hình đổi màu */}
       <body
         suppressHydrationWarning
         className={`${inter.className} bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300`}
       >
-        {/* 👇 3. BỌC TOÀN BỘ APP BẰNG THEMEPROVIDER */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -45,6 +49,9 @@ export default function RootLayout({
             </div>
           </footer>
         </ThemeProvider>
+
+        {/* 👇 NƠI ĐIỀN MÃ GOOGLE ANALYTICS (Bắt đầu bằng chữ G-) */}
+        <GoogleAnalytics gaId="G-M420J9CRMP" />
       </body>
     </html>
   );
