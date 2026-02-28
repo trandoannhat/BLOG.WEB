@@ -135,12 +135,15 @@ export default function Navbar() {
           {isMounted &&
             (isLoggedIn ? (
               <div className="flex items-center gap-4 ml-2 pl-4 border-l border-gray-200 dark:border-gray-700">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                <Link
+                  href="/profile"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-200 hover:opacity-70 transition-opacity"
+                >
                   Chào,{" "}
                   <strong className="text-blue-600 dark:text-blue-400">
                     {userName}
                   </strong>
-                </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="text-sm font-semibold text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
@@ -264,12 +267,16 @@ export default function Navbar() {
               {isMounted &&
                 (isLoggedIn ? (
                   <>
-                    <div className="text-center py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="block text-center py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
                       Tài khoản:{" "}
                       <strong className="text-blue-600 dark:text-blue-400">
                         {userName}
                       </strong>
-                    </div>
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="text-center font-semibold text-red-500 border border-red-200 dark:border-red-900/50 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
