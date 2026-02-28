@@ -5,9 +5,9 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
-// 👇 THÊM IMPORT THƯ VIỆN GOOGLE ANALYTICS
+//  THÊM IMPORT THƯ VIỆN GOOGLE ANALYTICS
 import { GoogleAnalytics } from "@next/third-parties/google";
-
+import { Toaster } from "react-hot-toast"; //  1. IMPORT TOAST
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -30,6 +30,9 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.className} bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300`}
       >
+        {/*  2. ĐẶT TOASTER Ở ĐÂY (Nó sẽ hiển thị thông báo ở góc trên bên phải) */}
+        <Toaster position="top-right" reverseOrder={false} />
+
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
