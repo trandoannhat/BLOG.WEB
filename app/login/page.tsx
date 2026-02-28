@@ -59,6 +59,7 @@ export default function LoginPage() {
         // Lưu token và tên user vào trình duyệt
         localStorage.setItem("accessToken", token);
         localStorage.setItem("userName", userName);
+        localStorage.setItem("avatarUrl", responseData.avatarUrl || "");
 
         //  THÊM DÒNG NÀY ĐỂ BẮN THÔNG BÁO THÀNH CÔNG
         toast.success("Đăng nhập thành công!");

@@ -133,6 +133,8 @@ export default function ProfilePage() {
         toast.success("Cập nhật thông tin thành công!");
         // Cập nhật lại tên trên Navbar
         localStorage.setItem("userName", formData.fullName);
+        //cập nhật lại avatar trên Navbar
+        localStorage.setItem("avatarUrl", formData.avatarUrl);
         window.dispatchEvent(new Event("storage"));
       } else {
         toast.error(json.message || "Cập nhật thất bại.");
