@@ -52,7 +52,7 @@ async function getCategoryTree(): Promise<CategoryTreeDto[]> {
   }
 }
 
-// 👇 ĐÃ THÊM: Hàm lọc đệ quy để giấu danh mục trống
+// 👇 ĐÃ SỬA: Hàm lọc đệ quy cộng dồn số bài viết từ con lên cha
 function filterActiveCategories(
   categories: CategoryTreeDto[],
 ): CategoryTreeDto[] {
@@ -61,16 +61,25 @@ function filterActiveCategories(
       .map((cat) => {
         // Tạo một bản sao để không làm hỏng dữ liệu gốc
         const newCat = { ...cat };
+
         // Nếu có danh mục con, gọi đệ quy để lọc con trước
         if (newCat.children && newCat.children.length > 0) {
           newCat.children = filterActiveCategories(newCat.children);
+
+          // Tính tổng số bài viết của tất cả các danh mục con hiện có
+          const childrenPostCountSum = newCat.children.reduce(
+            (sum, child) => sum + child.postCount,
+            0,
+          );
+
+          // Cộng dồn số lượng đó vào danh mục cha
+          newCat.postCount += childrenPostCountSum;
         }
+
         return newCat;
       })
-      // Cuối cùng, chỉ giữ lại danh mục nếu nó có bài viết, HOẶC bên trong nó có danh mục con có bài viết
-      .filter(
-        (cat) => cat.postCount > 0 || (cat.children && cat.children.length > 0),
-      )
+      // Cuối cùng, chỉ giữ lại danh mục nếu tổng số bài viết (của nó + của con) lớn hơn 0
+      .filter((cat) => cat.postCount > 0)
   );
 }
 
@@ -128,7 +137,7 @@ export default async function BlogPage({
     getCategoryTree(),
   ]);
 
-  // 👇 ĐÃ THÊM: Sử dụng hàm lọc để lấy ra các danh mục hợp lệ
+  // Sử dụng hàm lọc để lấy ra các danh mục hợp lệ & đã cộng dồn số liệu
   const activeCategories = filterActiveCategories(categories);
 
   return (
@@ -163,7 +172,6 @@ export default async function BlogPage({
             </Link>
 
             <ul className="space-y-1">
-              {/* 👇 ĐÃ SỬA: Map qua mảng activeCategories đã được lọc */}
               {activeCategories.map((cat) => (
                 <CategoryNode
                   key={cat.id}

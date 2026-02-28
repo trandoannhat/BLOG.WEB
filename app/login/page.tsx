@@ -63,7 +63,8 @@ export default function LoginPage() {
 
         //  THÊM DÒNG NÀY ĐỂ BẮN THÔNG BÁO THÀNH CÔNG
         toast.success("Đăng nhập thành công!");
-
+        //  THÊM DÒNG NÀY VÀO TRƯỚC KHI CHUYỂN TRANG - để reload lại menu
+        window.dispatchEvent(new Event("storage"));
         // Chuyển hướng về trang chủ
         router.push("/");
         router.refresh();

@@ -46,7 +46,7 @@ export default function Navbar() {
     // Lắng nghe sự kiện để Navbar tự cập nhật
     window.addEventListener("storage", updateAuthData);
     return () => window.removeEventListener("storage", updateAuthData);
-  }, []);
+  }, [pathname]);
 
   // 👇 ĐÓNG CÁC MENU KHI CHUYỂN TRANG
   useEffect(() => {
