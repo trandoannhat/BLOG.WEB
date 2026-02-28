@@ -1,11 +1,21 @@
 "use client";
 import { toast } from "react-hot-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
+  //  THÊM ĐOẠN NÀY VÀO (Guard kiểm tra đăng nhập)
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      router.push("/"); // Nếu có token (đã đăng nhập) thì đá văng về trang chủ
+    }
+  }, [router]);
+  //  KẾT THÚC ĐOẠN THÊM
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
