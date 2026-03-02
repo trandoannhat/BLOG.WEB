@@ -43,7 +43,6 @@ async function getRecentPosts(): Promise<PostDto[]> {
 
 async function getFeaturedProjects(): Promise<ProjectDto[]> {
   try {
-    // Lấy 3 dự án được đánh dấu là Nổi bật (IsFeatured = true)
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/Projects?PageSize=3&IsFeatured=true`,
       { cache: "no-store" },
@@ -61,7 +60,6 @@ async function getFeaturedProjects(): Promise<ProjectDto[]> {
 // 3. GIAO DIỆN TRANG CHỦ
 // ==========================================
 export default async function HomePage() {
-  // Gọi 2 API song song để tối ưu tốc độ load
   const [recentPosts, featuredProjects] = await Promise.all([
     getRecentPosts(),
     getFeaturedProjects(),
@@ -69,7 +67,7 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-24 pb-12">
-      {/* --- SECTION 1: HERO (Lời chào) --- */}
+      {/* --- SECTION 1: HERO (Lời chào Doanh nghiệp) --- */}
       <section className="relative py-20 md:py-32 overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border border-blue-100 dark:border-gray-800 shadow-sm text-center px-6 transition-colors duration-300">
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 dark:opacity-5 mix-blend-multiply"></div>
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl"></div>
@@ -77,25 +75,24 @@ export default async function HomePage() {
 
         <div className="relative z-10 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-6 tracking-tight leading-tight">
-            Kiến tạo hệ thống với <br className="hidden md:block" />
+            Giải pháp Phần mềm & <br className="hidden md:block" />
+            Kiến trúc Hệ thống{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
               NhatSoft
             </span>
           </h1>
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed max-w-2xl mx-auto">
-            Nơi tôi chia sẻ hành trình xây dựng các giải pháp phần mềm toàn
-            diện. Tập trung vào thiết kế{" "}
-            <strong>Kiến trúc hệ thống (System Design)</strong>, triển khai mô
-            hình đa khách hàng (Multi-tenant RBAC), và tối ưu hiệu suất bằng
-            công nghệ hiện đại.
+            Chúng tôi chuyên cung cấp các giải pháp công nghệ toàn diện, từ
+            thiết kế kiến trúc lõi (System Design), xây dựng nền tảng quản trị
+            đến chuyển đổi số cho doanh nghiệp và cơ quan nhà nước.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/projects"
+              href="/contact"
               className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
             >
-              Khám phá Dự án
+              Liên hệ tư vấn
               <svg
                 className="w-5 h-5"
                 fill="none"
@@ -111,22 +108,21 @@ export default async function HomePage() {
               </svg>
             </Link>
             <Link
-              href="/blog"
+              href="/projects"
               className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-bold hover:bg-gray-50 dark:hover:bg-gray-700 hover:-translate-y-1 transition-all"
             >
-              Đọc Blog
+              Hồ sơ năng lực
             </Link>
           </div>
         </div>
       </section>
 
-      {/* --- SECTION 2: CHUYÊN MÔN KỸ THUẬT (Skills) --- */}
+      {/* --- SECTION 2: CHUYÊN MÔN KỸ THUẬT (Năng lực) --- */}
       <section className="max-w-5xl mx-auto text-center px-4">
         <h2 className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-8">
-          Hệ sinh thái công nghệ
+          Nền tảng công nghệ
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {/* Card Tech */}
           <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
             <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mx-auto mb-4">
               <svg
@@ -147,7 +143,7 @@ export default async function HomePage() {
               Backend Core
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              .NET 8/9, C#, RESTful APIs
+              .NET 8/9, C#, Microservices
             </p>
           </div>
           <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
@@ -170,7 +166,7 @@ export default async function HomePage() {
               Database
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              PostgreSQL, SQL Server
+              PostgreSQL, SQL Server, Redis
             </p>
           </div>
           <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
@@ -193,7 +189,7 @@ export default async function HomePage() {
               Frontend
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              React, Next.js, TypeScript
+              React, Next.js, TailwindCSS
             </p>
           </div>
           <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
@@ -216,13 +212,13 @@ export default async function HomePage() {
               DevOps
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Docker, CI/CD, Cloud
+              Docker, CI/CD, Cloud Server
             </p>
           </div>
         </div>
       </section>
 
-      {/* --- SECTION 3: DỰ ÁN NỔI BẬT --- */}
+      {/* --- SECTION 3: DỰ ÁN TIÊU BIỂU --- */}
       <section>
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
@@ -233,13 +229,13 @@ export default async function HomePage() {
             href="/projects"
             className="text-purple-600 dark:text-purple-400 font-semibold hover:underline hidden sm:block"
           >
-            Xem tất cả dự án &rarr;
+            Hồ sơ năng lực &rarr;
           </Link>
         </div>
 
         {featuredProjects.length === 0 ? (
           <div className="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 text-gray-500">
-            Chưa có dự án nổi bật nào được ghim.
+            Đang cập nhật các dự án nổi bật...
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -286,12 +282,12 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* --- SECTION 4: BÀI VIẾT MỚI NHẤT --- */}
+      {/* --- SECTION 4: GÓC CHIA SẺ (Blog) --- */}
       <section>
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
             <span className="w-8 h-1 bg-blue-600 rounded-full"></span>
-            Bài viết mới nhất
+            Góc chia sẻ
           </h2>
           <Link
             href="/blog"
@@ -368,14 +364,14 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
         <div className="relative z-10 max-w-2xl mx-auto">
           <h2 className="text-3xl font-bold text-white mb-4">
-            Sẵn sàng hợp tác?
+            Đã đến lúc nâng tầm dự án của bạn
           </h2>
           <p className="text-gray-400 mb-8 text-lg">
-            Nếu bạn đang tìm kiếm một Software Engineer để thiết kế và tối ưu hệ
-            thống, đừng ngần ngại liên hệ với tôi.
+            NhatSoft luôn sẵn sàng đồng hành cùng doanh nghiệp để giải quyết các
+            bài toán công nghệ cốt lõi và tối ưu hóa hệ thống.
           </p>
-          <a
-            href="mailto:contact@nhatsoft.com"
+          <Link
+            href="/contact"
             className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-500 transition-colors shadow-lg"
           >
             <svg
@@ -391,8 +387,8 @@ export default async function HomePage() {
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-            Liên hệ ngay
-          </a>
+            Gửi yêu cầu hợp tác
+          </Link>
         </div>
       </section>
     </div>
