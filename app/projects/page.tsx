@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 interface ProjectDto {
@@ -36,18 +35,17 @@ export default async function ProjectsPage() {
   return (
     <div className="py-8">
       <div className="text-center max-w-2xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
           Dự án nổi bật
         </h1>
-        <p className="text-lg text-gray-600">
-          Tổng hợp những sản phẩm, hệ thống và ứng dụng tôi đã tham gia phát
-          triển. Từ Web Application, API Services cho đến các giải pháp quản trị
-          doanh nghiệp.
+        <p className="text-lg text-gray-600 dark:text-gray-400">
+          Tổng hợp những sản phẩm, hệ thống và nền tảng cốt lõi mà NhatSoft đã
+          trực tiếp thiết kế kiến trúc và phát triển.
         </p>
       </div>
 
       {projects.length === 0 ? (
-        <div className="text-center text-gray-500 py-20 border-2 border-dashed border-gray-200 rounded-2xl">
+        <div className="text-center text-gray-500 dark:text-gray-400 py-20 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800">
           Đang cập nhật dự án...
         </div>
       ) : (
@@ -55,19 +53,19 @@ export default async function ProjectsPage() {
           {projects.map((project) => (
             <div
               key={project.id}
-              className="group flex flex-col bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl hover:border-blue-200 transition-all duration-300"
+              className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300"
             >
-              {/* 👇 PHẦN BỌC LINK: Bấm vào Ảnh hoặc Tiêu đề sẽ sang trang Chi tiết */}
+              {/* BỌC LINK CHO ẢNH VÀ NỘI DUNG */}
               <Link
                 href={`/projects/${project.id}`}
                 className="flex flex-col flex-1 cursor-pointer"
               >
                 {/* Ảnh Thumbnail */}
-                <div className="relative h-56 w-full bg-gray-100 overflow-hidden border-b border-gray-100">
+                <div className="relative h-56 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden border-b border-gray-100 dark:border-gray-700">
                   <img
                     src={
                       project.thumbnailUrl ||
-                      "https://via.placeholder.com/600x400?text=No+Image"
+                      "https://via.placeholder.com/600x400?text=NhatSoft+Project"
                     }
                     alt={project.name}
                     className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
@@ -81,11 +79,11 @@ export default async function ProjectsPage() {
 
                 {/* Nội dung Card */}
                 <div className="p-6 flex flex-col flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {project.name}
                   </h3>
 
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-3 flex-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-1">
                     {project.description}
                   </p>
 
@@ -95,13 +93,13 @@ export default async function ProjectsPage() {
                       {project.techStacks.slice(0, 4).map((tech, index) => (
                         <span
                           key={index}
-                          className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-semibold"
+                          className="px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 rounded-md text-xs font-semibold"
                         >
                           {tech}
                         </span>
                       ))}
                       {project.techStacks.length > 4 && (
-                        <span className="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-md text-xs font-medium">
+                        <span className="px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-md text-xs font-medium">
                           +{project.techStacks.length - 4}
                         </span>
                       )}
@@ -110,17 +108,17 @@ export default async function ProjectsPage() {
                 </div>
               </Link>
 
-              {/* 👇 PHẦN NÚT ĐỘC LẬP: Nằm ngoài Link để không bị lỗi click */}
+              {/* KHU VỰC NÚT ĐỘC LẬP TẠI FOOTER CARD */}
               <div className="px-6 pb-6 pt-2">
-                <div className="flex gap-3 pt-4 border-t border-gray-100">
+                <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
                   {project.liveDemoUrl && (
                     <a
                       href={project.liveDemoUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 text-center py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                      className="flex-1 text-center py-2 bg-gray-900 dark:bg-gray-700 text-white rounded-lg text-sm font-medium hover:bg-blue-600 dark:hover:bg-blue-500 transition-colors"
                     >
-                      Live Demo
+                      Link Sản phẩm
                     </a>
                   )}
                   {project.sourceCodeUrl && (
@@ -128,16 +126,16 @@ export default async function ProjectsPage() {
                       href={project.sourceCodeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 text-center py-2 bg-white text-gray-800 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                      className="flex-1 text-center py-2 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       Source Code
                     </a>
                   )}
-                  {/* Nút Xem chi tiết nếu không có Link ngoài */}
+                  {/* Nút Xem chi tiết nếu không có cả 2 link ngoài */}
                   {!project.liveDemoUrl && !project.sourceCodeUrl && (
                     <Link
                       href={`/projects/${project.id}`}
-                      className="flex-1 text-center py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-semibold hover:bg-blue-100 transition-colors"
+                      className="flex-1 text-center py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 rounded-lg text-sm font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                     >
                       Xem chi tiết &rarr;
                     </Link>
