@@ -18,8 +18,6 @@ export default function Navbar() {
   const [avatarUrl, setAvatarUrl] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
-
-  // 👇 THÊM STATE QUẢN LÝ DROPDOWN MENU CỦA PROFILE (DESKTOP)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   // Hàm gom chung việc đọc LocalStorage
@@ -30,7 +28,7 @@ export default function Navbar() {
 
     if (token) {
       setIsLoggedIn(true);
-      setUserName(name || "NhatDev");
+      setUserName(name || "NhatSoft"); // Đã đổi NhatDev -> NhatSoft
       setAvatarUrl(avatar || "");
     } else {
       setIsLoggedIn(false);
@@ -43,26 +41,23 @@ export default function Navbar() {
     setIsMounted(true);
     updateAuthData();
 
-    // Lắng nghe sự kiện để Navbar tự cập nhật
     window.addEventListener("storage", updateAuthData);
     return () => window.removeEventListener("storage", updateAuthData);
-  }, [pathname]);
+  }, [pathname]); // 👇 Đã thêm pathname vào đây để fix lỗi không đổi state khi Login xong
 
-  // 👇 ĐÓNG CÁC MENU KHI CHUYỂN TRANG
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsProfileMenuOpen(false);
   }, [pathname]);
 
   const handleLogout = () => {
-    // Xóa dữ liệu trong trình duyệt
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userName");
     localStorage.removeItem("avatarUrl");
 
-    updateAuthData(); // Cập nhật lại UI lập tức
+    updateAuthData();
     setIsMobileMenuOpen(false);
-    setIsProfileMenuOpen(false); // Đóng luôn cả menu dropdown
+    setIsProfileMenuOpen(false);
 
     toast.success("Đã đăng xuất thành công!");
     router.push("/login");
@@ -77,11 +72,14 @@ export default function Navbar() {
     }
   };
 
+  // 👇 ĐÃ SỬA: Cập nhật lại mảng navLinks với các trang mới
   const navLinks = [
     { name: "Trang chủ", path: "/" },
-    { name: "Dự án", path: "/projects" },
     { name: "Blog", path: "/blog" },
-    { name: "Về tôi", path: "/about" },
+    { name: "Tin tức", path: "/news" },
+    { name: "Dự án", path: "/projects" },
+    { name: "Về NhatSoft", path: "/about" }, // Đổi NhatDev -> NhatSoft
+    { name: "Ủng hộ", path: "/donate" },
   ];
 
   return (
@@ -92,20 +90,24 @@ export default function Navbar() {
           href="/"
           className="text-2xl font-black text-blue-600 tracking-tight flex-shrink-0"
         >
-          NhatDev<span className="text-gray-800 dark:text-white">.</span>
+          {/* 👇 Đổi logo NhatDev -> NhatSoft */}
+          NhatSoft<span className="text-gray-800 dark:text-white">.</span>
         </Link>
 
         {/* MENU DESKTOP */}
-        <nav className="hidden md:flex gap-8 items-center">
+        <nav className="hidden md:flex gap-6 lg:gap-8 items-center">
           {navLinks.map((link) => {
+            // Logic xử lý active: Nếu là trang Blog có categoryId thì chỉ active khi khớp url
             const isActive =
               pathname === link.path ||
-              (link.path !== "/" && pathname.startsWith(link.path));
+              (link.path !== "/" &&
+                pathname.startsWith(link.path.split("?")[0]) &&
+                link.path.includes("categoryId") === false);
             return (
               <Link
                 key={link.path}
                 href={link.path}
-                className={`font-medium transition-colors ${
+                className={`font-medium text-sm lg:text-base transition-colors ${
                   isActive
                     ? "text-blue-600 dark:text-blue-400 font-bold"
                     : "text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
@@ -125,7 +127,7 @@ export default function Navbar() {
               placeholder="Tìm kiếm bài viết..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-48 lg:w-64 pl-4 pr-10 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-200 transition-all"
+              className="w-40 lg:w-56 xl:w-64 pl-4 pr-10 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-gray-200 transition-all"
             />
             <button
               type="submit"
@@ -153,7 +155,6 @@ export default function Navbar() {
           {isMounted &&
             (isLoggedIn ? (
               <div className="relative flex items-center ml-2 pl-4 border-l border-gray-200 dark:border-gray-700">
-                {/* 👇 NÚT BẤM HIỂN THỊ AVATAR (DROPDOWN) */}
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none"
@@ -168,17 +169,14 @@ export default function Navbar() {
                   />
                 </button>
 
-                {/* 👇 KHUNG DROPDOWN MENU */}
                 {isProfileMenuOpen && (
                   <>
-                    {/* Lớp phủ vô hình để click ra ngoài thì đóng menu */}
                     <div
                       className="fixed inset-0 z-40"
                       onClick={() => setIsProfileMenuOpen(false)}
                     ></div>
 
                     <div className="absolute right-0 top-full mt-3 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden z-50 py-2 transform origin-top-right transition-all">
-                      {/* Tiêu đề Menu (Tên User) */}
                       <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 mb-1 bg-gray-50 dark:bg-gray-900/50">
                         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">
                           Đang đăng nhập:
@@ -188,7 +186,6 @@ export default function Navbar() {
                         </p>
                       </div>
 
-                      {/* Các nút chức năng */}
                       <Link
                         href="/profile"
                         onClick={() => setIsProfileMenuOpen(false)}
@@ -197,7 +194,6 @@ export default function Navbar() {
                         Hồ sơ cá nhân
                       </Link>
 
-                      {/* Nút Đăng xuất */}
                       <div className="border-t border-gray-100 dark:border-gray-700 mt-1 pt-1">
                         <button
                           onClick={handleLogout}
@@ -303,7 +299,9 @@ export default function Navbar() {
             {navLinks.map((link) => {
               const isActive =
                 pathname === link.path ||
-                (link.path !== "/" && pathname.startsWith(link.path));
+                (link.path !== "/" &&
+                  pathname.startsWith(link.path.split("?")[0]) &&
+                  link.path.includes("categoryId") === false);
               return (
                 <Link
                   key={link.path}
