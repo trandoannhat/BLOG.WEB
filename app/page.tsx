@@ -40,14 +40,18 @@ export default async function HomePage() {
 
         <div className="relative z-10 max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
-            Xin chào, tôi là{" "}
-            <span className="text-blue-600 dark:text-blue-400">NhatDev</span>
+            Xin chào, tôi là {/* 👇 Đổi thành NhatSoft */}
+            <span className="text-blue-600 dark:text-blue-400">NhatSoft</span>
           </h1>
+          {/* 👇 Nội dung chào mừng được mở rộng, bao quát hơn */}
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed">
-            Software Engineer đam mê kiến trúc hệ thống. Nơi tôi chia sẻ những
-            kinh nghiệm thực chiến về xây dựng ứng dụng hiệu suất cao với{" "}
-            <strong className="text-gray-900 dark:text-white">.NET 8</strong> và{" "}
-            <strong className="text-gray-900 dark:text-white">Next.js</strong>.
+            Nơi ghi chép lại hành trình làm nghề và chia sẻ kinh nghiệm thực
+            chiến. Tập trung vào{" "}
+            <strong className="text-gray-900 dark:text-white">
+              Kiến trúc Hệ thống (System Design)
+            </strong>
+            , tối ưu hiệu năng và những công nghệ mới nhất để giải quyết các bài
+            toán phần mềm phức tạp.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -99,7 +103,8 @@ export default async function HomePage() {
                   <img
                     src={
                       post.thumbnailUrl ||
-                      "https://via.placeholder.com/600x400?text=NhatDev+Blog"
+                      // 👇 Đổi ảnh mặc định thành NhatSoft Blog
+                      "https://via.placeholder.com/600x400?text=NhatSoft+Blog"
                     }
                     alt={post.title}
                     className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-in-out"
