@@ -3,8 +3,22 @@
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
-// Cấu hình các phương thức thanh toán (Dễ dàng thêm Ngân hàng, PayPal sau này)
-const paymentMethods = [
+// 👇 1. KHAI BÁO KHUÔN MẪU (INTERFACE) CHO TYPESCRIPT ĐỂ FIX LỖI BUILD
+interface PaymentMethod {
+  id: string;
+  name: string;
+  owner: string;
+  info: string;
+  type: "qr" | "link";
+  image?: string; // Dấu ? nghĩa là không bắt buộc phải có
+  url?: string; // Dấu ? nghĩa là không bắt buộc phải có
+  themeClass: string;
+  textClass: string;
+  bgClass: string;
+}
+
+// 👇 2. GẮN INTERFACE VÀO MẢNG
+const paymentMethods: PaymentMethod[] = [
   {
     id: "momo",
     name: "MoMo",
