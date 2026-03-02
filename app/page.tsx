@@ -1,7 +1,9 @@
 import Link from "next/link";
 import dayjs from "dayjs";
 
-// Định nghĩa kiểu dữ liệu cho bài viết
+// ==========================================
+// 1. ĐỊNH NGHĨA KIỂU DỮ LIỆU
+// ==========================================
 interface PostDto {
   id: string;
   title: string;
@@ -13,7 +15,17 @@ interface PostDto {
   viewCount: number;
 }
 
-// Hàm lấy 6 bài viết mới nhất từ VPS
+interface ProjectDto {
+  id: string;
+  name: string;
+  description: string;
+  thumbnailUrl?: string;
+  techStacks: string[];
+}
+
+// ==========================================
+// 2. CÁC HÀM FETCH DỮ LIỆU TỪ API
+// ==========================================
 async function getRecentPosts(): Promise<PostDto[]> {
   try {
     const res = await fetch(
@@ -29,49 +41,252 @@ async function getRecentPosts(): Promise<PostDto[]> {
   }
 }
 
+async function getFeaturedProjects(): Promise<ProjectDto[]> {
+  try {
+    // Lấy 3 dự án được đánh dấu là Nổi bật (IsFeatured = true)
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/Projects?PageSize=3&IsFeatured=true`,
+      { cache: "no-store" },
+    );
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch (error) {
+    console.error("Lỗi lấy dự án nổi bật:", error);
+    return [];
+  }
+}
+
+// ==========================================
+// 3. GIAO DIỆN TRANG CHỦ
+// ==========================================
 export default async function HomePage() {
-  const recentPosts = await getRecentPosts();
+  // Gọi 2 API song song để tối ưu tốc độ load
+  const [recentPosts, featuredProjects] = await Promise.all([
+    getRecentPosts(),
+    getFeaturedProjects(),
+  ]);
 
   return (
-    <div className="space-y-20">
-      {/* 1. HERO SECTION - PHẦN GIỚI THIỆU BẢN THÂN */}
-      <section className="relative py-20 md:py-32 overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 border border-blue-100 dark:border-gray-800 shadow-sm text-center px-6 transition-colors duration-300">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 dark:opacity-5"></div>
+    <div className="space-y-24 pb-12">
+      {/* --- SECTION 1: HERO (Lời chào) --- */}
+      <section className="relative py-20 md:py-32 overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border border-blue-100 dark:border-gray-800 shadow-sm text-center px-6 transition-colors duration-300">
+        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 dark:opacity-5 mix-blend-multiply"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-3xl"></div>
 
-        <div className="relative z-10 max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
-            Xin chào, tôi là {/* 👇 Đổi thành NhatSoft */}
-            <span className="text-blue-600 dark:text-blue-400">NhatSoft</span>
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-6 tracking-tight leading-tight">
+            Kiến tạo hệ thống với <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+              NhatSoft
+            </span>
           </h1>
-          {/* 👇 Nội dung chào mừng được mở rộng, bao quát hơn */}
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed">
-            Nơi ghi chép lại hành trình làm nghề và chia sẻ kinh nghiệm thực
-            chiến. Tập trung vào{" "}
-            <strong className="text-gray-900 dark:text-white">
-              Kiến trúc Hệ thống (System Design)
-            </strong>
-            , tối ưu hiệu năng và những công nghệ mới nhất để giải quyết các bài
-            toán phần mềm phức tạp.
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed max-w-2xl mx-auto">
+            Nơi tôi chia sẻ hành trình xây dựng các giải pháp phần mềm toàn
+            diện. Tập trung vào thiết kế{" "}
+            <strong>Kiến trúc hệ thống (System Design)</strong>, triển khai mô
+            hình đa khách hàng (Multi-tenant RBAC), và tối ưu hiệu suất bằng
+            công nghệ hiện đại.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/blog"
-              className="w-full sm:w-auto px-8 py-3 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-1 transition-all"
+              href="/projects"
+              className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
             >
-              Đọc Blog Ngay
+              Khám phá Dự án
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
             </Link>
             <Link
-              href="/projects"
-              className="w-full sm:w-auto px-8 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-bold hover:bg-gray-50 dark:hover:bg-gray-700 hover:-translate-y-1 transition-all"
+              href="/blog"
+              className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-bold hover:bg-gray-50 dark:hover:bg-gray-700 hover:-translate-y-1 transition-all"
             >
-              Xem Dự Án
+              Đọc Blog
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 2. LATEST POSTS - DANH SÁCH BÀI VIẾT MỚI */}
+      {/* --- SECTION 2: CHUYÊN MÔN KỸ THUẬT (Skills) --- */}
+      <section className="max-w-5xl mx-auto text-center px-4">
+        <h2 className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-8">
+          Hệ sinh thái công nghệ
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {/* Card Tech */}
+          <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
+                />
+              </svg>
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+              Backend Core
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              .NET 8/9, C#, RESTful APIs
+            </p>
+          </div>
+          <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"
+                />
+              </svg>
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+              Database
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              PostgreSQL, SQL Server
+            </p>
+          </div>
+          <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                />
+              </svg>
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+              Frontend
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              React, Next.js, TypeScript
+            </p>
+          </div>
+          <div className="p-6 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
+              </svg>
+            </div>
+            <h3 className="font-bold text-gray-900 dark:text-white mb-2">
+              DevOps
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Docker, CI/CD, Cloud
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* --- SECTION 3: DỰ ÁN NỔI BẬT --- */}
+      <section>
+        <div className="flex items-center justify-between mb-10">
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
+            <span className="w-8 h-1 bg-purple-600 rounded-full"></span>
+            Dự án tiêu biểu
+          </h2>
+          <Link
+            href="/projects"
+            className="text-purple-600 dark:text-purple-400 font-semibold hover:underline hidden sm:block"
+          >
+            Xem tất cả dự án &rarr;
+          </Link>
+        </div>
+
+        {featuredProjects.length === 0 ? (
+          <div className="text-center py-16 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 text-gray-500">
+            Chưa có dự án nổi bật nào được ghim.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredProjects.map((project) => (
+              <Link
+                href={`/projects/${project.id}`}
+                key={project.id}
+                className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
+              >
+                <div className="relative h-48 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                  <img
+                    src={
+                      project.thumbnailUrl ||
+                      "https://via.placeholder.com/600x400?text=NhatSoft+Project"
+                    }
+                    alt={project.name}
+                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute top-3 right-3 bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-xs font-bold shadow-sm">
+                    ⭐ Nổi bật
+                  </div>
+                </div>
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 transition-colors">
+                    {project.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mt-auto">
+                    {project.techStacks?.slice(0, 3).map((tech, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded text-xs font-medium"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* --- SECTION 4: BÀI VIẾT MỚI NHẤT --- */}
       <section>
         <div className="flex items-center justify-between mb-10">
           <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
@@ -82,7 +297,7 @@ export default async function HomePage() {
             href="/blog"
             className="text-blue-600 dark:text-blue-400 font-semibold hover:underline hidden sm:block"
           >
-            Xem tất cả &rarr;
+            Xem tất cả bài viết &rarr;
           </Link>
         </div>
 
@@ -96,26 +311,21 @@ export default async function HomePage() {
               <Link
                 href={`/blog/${post.slug}`}
                 key={post.id}
-                className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-2xl dark:hover:shadow-blue-900/10 hover:-translate-y-2 transition-all duration-300"
+                className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-blue-900/10 hover:-translate-y-2 transition-all duration-300"
               >
-                {/* ẢNH BÌA */}
                 <div className="relative h-56 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
                   <img
                     src={
                       post.thumbnailUrl ||
-                      // 👇 Đổi ảnh mặc định thành NhatSoft Blog
                       "https://via.placeholder.com/600x400?text=NhatSoft+Blog"
                     }
                     alt={post.title}
                     className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 ease-in-out"
                   />
-                  {/* TAG DANH MỤC */}
                   <div className="absolute top-4 left-4 bg-white/95 dark:bg-gray-900/90 backdrop-blur-sm px-3 py-1 rounded-md text-xs font-bold text-blue-600 dark:text-blue-400 shadow-sm uppercase tracking-wider">
                     {post.categoryName}
                   </div>
                 </div>
-
-                {/* NỘI DUNG */}
                 <div className="p-6 flex flex-col flex-1">
                   <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 font-medium mb-3 gap-3">
                     <span className="flex items-center gap-1">
@@ -134,38 +344,13 @@ export default async function HomePage() {
                       </svg>
                       {dayjs(post.createdAt).format("DD/MM/YYYY")}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                        />
-                      </svg>
-                      {post.viewCount}
-                    </span>
                   </div>
-
                   <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 transition-colors leading-snug">
                     {post.title}
                   </h3>
-
                   <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-6 flex-1 leading-relaxed">
                     {post.summary}
                   </p>
-
                   <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
                     <span className="text-sm font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-2 transition-transform duration-300 flex items-center gap-1">
                       Đọc bài viết <span aria-hidden="true">&rarr;</span>
@@ -176,15 +361,38 @@ export default async function HomePage() {
             ))}
           </div>
         )}
+      </section>
 
-        {/* Nút xem tất cả cho Mobile */}
-        <div className="mt-8 text-center sm:hidden">
-          <Link
-            href="/blog"
-            className="inline-block px-6 py-3 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-bold rounded-full border border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+      {/* --- SECTION 5: CALL TO ACTION (CTA) --- */}
+      <section className="py-16 mt-12 bg-gray-900 dark:bg-gray-800 rounded-3xl text-center px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+        <div className="relative z-10 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-white mb-4">
+            Sẵn sàng hợp tác?
+          </h2>
+          <p className="text-gray-400 mb-8 text-lg">
+            Nếu bạn đang tìm kiếm một Software Engineer để thiết kế và tối ưu hệ
+            thống, đừng ngần ngại liên hệ với tôi.
+          </p>
+          <a
+            href="mailto:contact@nhatsoft.com"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-500 transition-colors shadow-lg"
           >
-            Xem tất cả bài viết
-          </Link>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+            Liên hệ ngay
+          </a>
         </div>
       </section>
     </div>
