@@ -12,22 +12,23 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  // 👇 ĐÃ SỬA: Đổi tên và tối ưu tiêu đề chuẩn SEO
-  title: "NhatSoft | Software Engineer & Tech Lead",
+  // 👇 ĐÃ CẬP NHẬT: Tiêu đề chuẩn hướng Giải pháp / Doanh nghiệp
+  title: "NhatSoft | Giải pháp Phần mềm & Kiến trúc Hệ thống",
 
-  // 👇 ĐÃ SỬA: Mở rộng mô tả (Description) để Google dễ lập chỉ mục trang web của bạn hơn
+  // 👇 ĐÃ CẬP NHẬT: Mô tả nhấn mạnh vào năng lực xây dựng hệ thống và chuyên môn
   description:
-    "Trang blog và portfolio của NhatSoft. Nơi chia sẻ kiến thức chuyên sâu về phát triển phần mềm, System Design, .NET, Next.js, và kinh nghiệm thực chiến trong các dự án công nghệ.",
+    "NhatSoft chuyên thiết kế kiến trúc hệ thống (System Design), phát triển phần mềm hiệu suất cao và cung cấp các giải pháp chuyển đổi số. Nơi chia sẻ kinh nghiệm thực chiến chuyên sâu với .NET, Next.js và Cloud Computing.",
 
-  // 👇 THÊM TỪ KHÓA: Giúp các công cụ tìm kiếm hiểu rõ trang web của bạn nói về chủ đề gì
+  // 👇 ĐÃ CẬP NHẬT: Bộ từ khóa thu hút các đối tác/khách hàng doanh nghiệp
   keywords: [
     "NhatSoft",
-    "Blog lập trình",
-    "Software Engineer",
+    "Giải pháp phần mềm",
+    "Kiến trúc hệ thống",
+    "System Design",
+    "Chuyển đổi số",
     ".NET",
     "Next.js",
-    "System Design",
-    "Tech Lead",
+    "Tech Blog",
   ],
 
   // NƠI ĐIỀN MÃ XÁC MINH GOOGLE SEARCH CONSOLE
@@ -62,7 +63,7 @@ export default function RootLayout({
             {children}
           </main>
 
-          {/* 👇 ĐÃ SỬA FOOTER: Thay NhatDev thành NhatSoft */}
+          {/* FOOTER */}
           <footer className="bg-white dark:bg-gray-900 border-t dark:border-gray-800 py-8 mt-auto transition-colors duration-300 text-center">
             <div className="max-w-6xl mx-auto px-6 text-gray-500 dark:text-gray-400 text-sm">
               © {new Date().getFullYear()} NhatSoft. Phát triển và quản trị bởi
