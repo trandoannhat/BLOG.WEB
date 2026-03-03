@@ -102,7 +102,7 @@ export default function DonatePage() {
               </span>
               <span className="text-slate-400">
                 Mục tiêu:{" "}
-                {stats ? formatMoney(stats.targetAmount) : "1.000.000đ"}
+                {stats ? formatMoney(stats.targetAmount) : "2.000.000đ"}
               </span>
             </div>
             <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
