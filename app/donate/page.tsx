@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast"; // Đã xóa thẻ <Toaster /> ở màn hình này
 import { donationService, DonationStats } from "@/services/donation.service";
 import DonationMarquee from "@/components/DonationMarquee";
 
-// CÁC MỨC DONATE NHANH
 const QUICK_AMOUNTS = [
   { label: "☕ Cà phê", value: 20000 },
   { label: "🍜 Bát phở", value: 50000 },
@@ -14,25 +13,20 @@ const QUICK_AMOUNTS = [
 
 export default function DonatePage() {
   const [loading, setLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false); // Trạng thái khóa nút chống Spam
   const [stats, setStats] = useState<DonationStats | null>(null);
 
-  // ==========================================
-  // THAY ĐỔI THÔNG TIN THANH TOÁN CỦA BẠN Ở ĐÂY
-  // ==========================================
-  // 1. Ngân hàng
   const BANK_ID = "ICB";
   const ACCOUNT_NO = "0907011886";
   const ACCOUNT_NAME = "TRAN DOAN NHAT";
-
-  // 2. Ví Điện tử
   const MOMO_PHONE = "0907011886";
   const ZALOPAY_PHONE = "0907011886";
 
   const [formData, setFormData] = useState({
     donorName: "",
     amount: 50000,
-    message: "",
-    paymentMethod: "Bank", // Mặc định chọn Bank
+    message: "Ung ho NhatSoft",
+    paymentMethod: "Bank",
   });
 
   useEffect(() => {
@@ -42,17 +36,22 @@ export default function DonatePage() {
       .catch(console.error);
   }, []);
 
-  // Tự động sinh Link ảnh VietQR cho Ngân hàng
   const qrUrlBank = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${formData.amount}&addInfo=${encodeURIComponent(formData.message)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
 
-  // HÀM COPY CLIPBOARD
   const handleCopy = (text: string | number, label: string) => {
     navigator.clipboard.writeText(text.toString());
     toast.success(`Đã sao chép ${label}!`);
   };
 
+  // Hàm gom chung việc cập nhật form và MỞ KHÓA nút Xác nhận
+  const updateForm = (newData: Partial<typeof formData>) => {
+    setFormData({ ...formData, ...newData });
+    if (isSubmitted) setIsSubmitted(false); // Nếu đang khóa thì mở ra
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitted) return; // Khóa 2 lớp: Nếu đã submit rồi thì chặn luôn hàm này
     if (formData.amount < 1000)
       return toast.error("Số tiền tối thiểu 1.000đ nhé!");
 
@@ -62,13 +61,13 @@ export default function DonatePage() {
         donorName: formData.donorName || "Ẩn danh",
         amount: formData.amount,
         message: formData.message,
-        paymentMethod: formData.paymentMethod, // Lấy đúng phương thức đang chọn
+        paymentMethod: formData.paymentMethod,
       });
 
       toast.success(
         "Đã gửi xác nhận! Mình sẽ duyệt lên bảng vinh danh sớm nhé.",
       );
-      setFormData({ ...formData, message: "Ung ho NhatSoft" });
+      setIsSubmitted(true); // Gửi xong thì khóa nút lại
     } catch (error) {
       toast.error("Lỗi kết nối. Vui lòng thử lại!");
     } finally {
@@ -85,8 +84,6 @@ export default function DonatePage() {
 
   return (
     <main className="min-h-screen bg-slate-50 pt-10 pb-20">
-      <Toaster position="top-center" />
-
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         {/* HEADER & PROGRESS BAR */}
         <div className="text-center mb-10">
@@ -98,7 +95,6 @@ export default function DonatePage() {
             ly cà phê nhé!
           </p>
 
-          {/* PROGRESS BAR */}
           <div className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex justify-between text-sm font-bold mb-2">
               <span className="text-blue-600">
@@ -124,15 +120,13 @@ export default function DonatePage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
-          {/* TOÀN BỘ KHU VỰC ĐIỀN FORM VÀ QR NẰM GỌN TRONG 1 THẺ <form> */}
+          {/* CỘT TRÁI: ĐIỀN THÔNG TIN */}
           <div className="lg:col-span-8 bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
             <form
               onSubmit={handleSubmit}
               className="grid grid-cols-1 md:grid-cols-2 gap-8"
             >
-              {/* CỘT TRÁI: ĐIỀN THÔNG TIN */}
               <div className="space-y-8">
-                {/* 1. Chọn mức tiền */}
                 <div>
                   <h3 className="font-bold text-slate-800 mb-3">
                     1. Chọn mức ủng hộ
@@ -142,9 +136,7 @@ export default function DonatePage() {
                       <button
                         key={item.value}
                         type="button"
-                        onClick={() =>
-                          setFormData({ ...formData, amount: item.value })
-                        }
+                        onClick={() => updateForm({ amount: item.value })}
                         className={`py-3 px-2 rounded-xl text-sm font-bold border-2 transition-all ${
                           formData.amount === item.value
                             ? "border-blue-500 bg-blue-50 text-blue-700"
@@ -161,10 +153,7 @@ export default function DonatePage() {
                       type="number"
                       value={formData.amount}
                       onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          amount: Number(e.target.value),
-                        })
+                        updateForm({ amount: Number(e.target.value) })
                       }
                       className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
                       placeholder="Hoặc nhập số tiền khác..."
@@ -172,7 +161,6 @@ export default function DonatePage() {
                   </div>
                 </div>
 
-                {/* 2. Nhập tên và lời nhắn (Không còn nút Submit ở đây nữa) */}
                 <div className="space-y-4">
                   <h3 className="font-bold text-slate-800 mb-2">
                     2. Lời nhắn đính kèm
@@ -180,17 +168,13 @@ export default function DonatePage() {
                   <input
                     type="text"
                     value={formData.donorName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, donorName: e.target.value })
-                    }
+                    onChange={(e) => updateForm({ donorName: e.target.value })}
                     placeholder="Tên của bạn (Tùy chọn)"
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-slate-900 placeholder-slate-400 outline-none transition-all"
                   />
                   <textarea
                     value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
-                    }
+                    onChange={(e) => updateForm({ message: e.target.value })}
                     rows={3}
                     placeholder="Lời nhắn..."
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 resize-none text-slate-900 placeholder-slate-400 outline-none transition-all"
@@ -204,15 +188,12 @@ export default function DonatePage() {
                   3. Quét mã thanh toán
                 </h3>
 
-                {/* TABS CHUYỂN PHƯƠNG THỨC */}
                 <div className="flex bg-slate-200 p-1 rounded-lg mb-6">
                   {["Bank", "MoMo", "ZaloPay"].map((method) => (
                     <button
                       key={method}
                       type="button"
-                      onClick={() =>
-                        setFormData({ ...formData, paymentMethod: method })
-                      }
+                      onClick={() => updateForm({ paymentMethod: method })}
                       className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${
                         formData.paymentMethod === method
                           ? "bg-white text-blue-600 shadow-sm"
@@ -224,7 +205,6 @@ export default function DonatePage() {
                   ))}
                 </div>
 
-                {/* HIỂN THỊ QR THEO TAB ĐƯỢC CHỌN */}
                 <div className="flex flex-col items-center flex-1 w-full">
                   {/* TAB: NGÂN HÀNG */}
                   {formData.paymentMethod === "Bank" && (
@@ -478,16 +458,21 @@ export default function DonatePage() {
                   )}
                 </div>
 
-                {/* === NÚT XÁC NHẬN ĐƯỢC CHUYỂN XUỐNG ĐÂY === */}
                 <div className="mt-6 pt-6 border-t border-slate-200 w-full">
                   <button
                     type="submit"
-                    disabled={loading}
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-md disabled:opacity-70"
+                    disabled={loading || isSubmitted}
+                    className={`w-full font-bold py-4 px-4 rounded-xl transition-all shadow-md ${
+                      isSubmitted
+                        ? "bg-green-600 text-white cursor-not-allowed"
+                        : "bg-slate-900 hover:bg-slate-800 text-white disabled:opacity-70"
+                    }`}
                   >
-                    {loading
-                      ? "Đang xử lý..."
-                      : `Tôi đã chuyển khoản qua ${formData.paymentMethod} xong`}
+                    {isSubmitted
+                      ? "✅ Đã gửi xác nhận thành công"
+                      : loading
+                        ? "Đang xử lý..."
+                        : `Tôi đã chuyển khoản qua ${formData.paymentMethod} xong`}
                   </button>
                   <p className="text-center text-xs text-slate-500 mt-3 font-medium">
                     Hãy bấm nút này sau khi thanh toán thành công nhé!
@@ -497,7 +482,7 @@ export default function DonatePage() {
             </form>
           </div>
 
-          {/* CỘT PHẢI (Top Supporter) BÂY GIỜ LÀ CỘT THỨ 3 BÊN NGOÀI - GIỮ NGUYÊN */}
+          {/* CỘT PHẢI: TOP SUPPORTER */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-gradient-to-b from-amber-50 to-white rounded-3xl shadow-sm border border-amber-100 p-6 md:p-8">
               <h2 className="text-xl font-extrabold text-amber-600 flex items-center gap-2 mb-6">
@@ -512,15 +497,7 @@ export default function DonatePage() {
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                            index === 0
-                              ? "bg-yellow-400 text-yellow-900"
-                              : index === 1
-                                ? "bg-slate-300 text-slate-800"
-                                : index === 2
-                                  ? "bg-amber-600 text-white"
-                                  : "bg-slate-100 text-slate-500"
-                          }`}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${index === 0 ? "bg-yellow-400 text-yellow-900" : index === 1 ? "bg-slate-300 text-slate-800" : index === 2 ? "bg-amber-600 text-white" : "bg-slate-100 text-slate-500"}`}
                         >
                           {index + 1}
                         </div>

@@ -48,7 +48,7 @@ export const donationService = {
     limit: number = 20,
   ): Promise<{ data: ApprovedDonation[] }> => {
     const res = await fetch(`${API_URL}/Donations/approved?limit=${limit}`, {
-      next: { revalidate: 60 }, // Cache 60s
+      cache: "no-store", // ĐÃ SỬA: Yêu cầu Next.js luôn lấy dữ liệu mới nhất (Không dùng Cache)
     });
 
     if (!res.ok) throw new Error("Lỗi tải danh sách ủng hộ");
@@ -58,7 +58,7 @@ export const donationService = {
   // 3. GET: Lấy thống kê (Cho Progress Bar và Top Supporter)
   getStats: async (): Promise<{ data: DonationStats }> => {
     const res = await fetch(`${API_URL}/Donations/stats`, {
-      next: { revalidate: 60 }, // Cache 60s
+      cache: "no-store", // ĐÃ SỬA: Yêu cầu Next.js luôn lấy dữ liệu mới nhất (Không dùng Cache)
     });
 
     if (!res.ok) throw new Error("Lỗi tải thống kê");
