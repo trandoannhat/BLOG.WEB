@@ -1,195 +1,546 @@
 "use client";
 
-import { useState } from "react";
-import { toast } from "react-hot-toast";
+import { useState, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
+import { donationService, DonationStats } from "@/services/donation.service";
+import DonationMarquee from "@/components/DonationMarquee";
 
-// 👇 1. KHAI BÁO KHUÔN MẪU (INTERFACE) CHO TYPESCRIPT ĐỂ FIX LỖI BUILD
-interface PaymentMethod {
-  id: string;
-  name: string;
-  owner: string;
-  info: string;
-  type: "qr" | "link";
-  image?: string; // Dấu ? nghĩa là không bắt buộc phải có
-  url?: string; // Dấu ? nghĩa là không bắt buộc phải có
-  themeClass: string;
-  textClass: string;
-  bgClass: string;
-}
-
-// 👇 2. GẮN INTERFACE VÀO MẢNG
-const paymentMethods: PaymentMethod[] = [
-  {
-    id: "momo",
-    name: "MoMo",
-    owner: "TRẦN DOÃN NHẤT",
-    info: "0907.011.886",
-    type: "qr", // Loại hiển thị là mã QR
-    image: "/images/momo.jpg",
-    themeClass: "from-pink-500 to-pink-600",
-    textClass: "text-pink-600 dark:text-pink-400",
-    bgClass:
-      "bg-pink-50 dark:bg-pink-900/10 border-pink-100 dark:border-pink-900/30",
-  },
-  {
-    id: "zalopay",
-    name: "ZaloPay / VietQR",
-    owner: "TRAN DOAN NHAT",
-    info: "Quét từ mọi ứng dụng ngân hàng",
-    type: "qr",
-    image: "/images/zalo.jpg",
-    themeClass: "from-blue-500 to-blue-600",
-    textClass: "text-blue-600 dark:text-blue-400",
-    bgClass:
-      "bg-blue-50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30",
-  },
-  // Hướng dẫn thêm PayPal (Mở comment khi nào bạn có link):
-  /*
-  {
-    id: "paypal",
-    name: "PayPal",
-    owner: "NhatSoft",
-    info: "Thanh toán quốc tế an toàn",
-    type: "link", // Loại hiển thị là Link/Nút bấm
-    url: "https://paypal.me/nhatsoft",
-    themeClass: "from-indigo-500 to-indigo-700",
-    textClass: "text-indigo-600 dark:text-indigo-400",
-    bgClass: "bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-900/30",
-  }
-  */
+// CÁC MỨC DONATE NHANH
+const QUICK_AMOUNTS = [
+  { label: "☕ Cà phê", value: 20000 },
+  { label: "🍜 Bát phở", value: 50000 },
+  { label: "🍕 Pizza", value: 100000 },
 ];
 
 export default function DonatePage() {
-  const [donorName, setDonorName] = useState("");
-  const [activeTab, setActiveTab] = useState(paymentMethods[0].id);
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<DonationStats | null>(null);
 
-  // Tự động tạo cú pháp chuyển khoản
-  const transferMessage = `DONATE ${
-    donorName ? donorName.trim().toUpperCase() : "AN DANH"
-  }`;
+  // ==========================================
+  // THAY ĐỔI THÔNG TIN THANH TOÁN CỦA BẠN Ở ĐÂY
+  // ==========================================
+  // 1. Ngân hàng
+  const BANK_ID = "ICB";
+  const ACCOUNT_NO = "0907011886";
+  const ACCOUNT_NAME = "TRAN DOAN NHAT";
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(transferMessage);
-    toast.success("Đã copy cú pháp chuyển khoản!");
+  // 2. Ví Điện tử
+  const MOMO_PHONE = "0907011886";
+  const ZALOPAY_PHONE = "0907011886";
+
+  const [formData, setFormData] = useState({
+    donorName: "",
+    amount: 50000,
+    message: "",
+    paymentMethod: "Bank", // Mặc định chọn Bank
+  });
+
+  useEffect(() => {
+    donationService
+      .getStats()
+      .then((res) => setStats(res.data))
+      .catch(console.error);
+  }, []);
+
+  // Tự động sinh Link ảnh VietQR cho Ngân hàng
+  const qrUrlBank = `https://img.vietqr.io/image/${BANK_ID}-${ACCOUNT_NO}-compact2.png?amount=${formData.amount}&addInfo=${encodeURIComponent(formData.message)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
+
+  // HÀM COPY CLIPBOARD
+  const handleCopy = (text: string | number, label: string) => {
+    navigator.clipboard.writeText(text.toString());
+    toast.success(`Đã sao chép ${label}!`);
   };
 
-  // Lấy ra phương thức đang được chọn
-  const activeMethod =
-    paymentMethods.find((m) => m.id === activeTab) || paymentMethods[0];
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.amount < 1000)
+      return toast.error("Số tiền tối thiểu 1.000đ nhé!");
+
+    setLoading(true);
+    try {
+      await donationService.submitDonation({
+        donorName: formData.donorName || "Ẩn danh",
+        amount: formData.amount,
+        message: formData.message,
+        paymentMethod: formData.paymentMethod, // Lấy đúng phương thức đang chọn
+      });
+
+      toast.success(
+        "Đã gửi xác nhận! Mình sẽ duyệt lên bảng vinh danh sớm nhé.",
+      );
+      setFormData({ ...formData, message: "Ung ho NhatSoft" });
+    } catch (error) {
+      toast.error("Lỗi kết nối. Vui lòng thử lại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatMoney = (amount: number) =>
+    new Intl.NumberFormat("vi-VN").format(amount) + "đ";
+
+  const progressPercent = stats
+    ? Math.min((stats.totalRaised / stats.targetAmount) * 100, 100)
+    : 0;
 
   return (
-    <div className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center min-h-[80vh]">
-      <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
-        Ủng hộ NhatSoft ☕
-      </h1>
-      <p className="text-lg text-gray-600 dark:text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-        Nếu bạn thấy những bài viết và dự án chia sẻ của mình hữu ích, bạn có
-        thể "tiếp lửa" mời mình một ly cà phê nhé. Sự ủng hộ của bạn là động lực
-        rất lớn đối với mình! ❤️
-      </p>
+    <main className="min-h-screen bg-slate-50 pt-10 pb-20">
+      <Toaster position="top-center" />
 
-      {/* KHU VỰC TẠO CÚ PHÁP CHUYỂN KHOẢN */}
-      <div className="bg-gray-50 dark:bg-gray-800/50 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 max-w-2xl mx-auto mb-12 shadow-sm">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-          Lời nhắn đính kèm (Để mình biết bạn là ai nhé)
-        </h3>
-        <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
-          <input
-            type="text"
-            placeholder="Nhập tên hoặc nickname của bạn..."
-            value={donorName}
-            onChange={(e) => setDonorName(e.target.value)}
-            className="w-full sm:w-64 px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-            maxLength={30}
-          />
-          <div className="flex items-center w-full sm:w-auto bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl overflow-hidden shadow-sm">
-            <div className="px-4 py-2.5 text-sm font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 border-r border-gray-300 dark:border-gray-600">
-              Nội dung:
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        {/* HEADER & PROGRESS BAR */}
+        <div className="text-center mb-10">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">
+            Support NhatSoft Server 🚀
+          </h1>
+          <p className="text-slate-500 max-w-2xl mx-auto mb-8">
+            Nếu những bài viết của mình giúp ích được cho bạn, hãy mời mình một
+            ly cà phê nhé!
+          </p>
+
+          {/* PROGRESS BAR */}
+          <div className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <div className="flex justify-between text-sm font-bold mb-2">
+              <span className="text-blue-600">
+                Đã đạt: {stats ? formatMoney(stats.totalRaised) : "0đ"}
+              </span>
+              <span className="text-slate-400">
+                Mục tiêu:{" "}
+                {stats ? formatMoney(stats.targetAmount) : "1.000.000đ"}
+              </span>
             </div>
-            <div className="px-4 py-2.5 text-sm font-mono text-blue-600 dark:text-blue-400 truncate flex-1 text-left min-w-[150px]">
-              {transferMessage}
+            <div className="w-full bg-slate-100 rounded-full h-4 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-blue-500 to-indigo-500 h-4 rounded-full transition-all duration-1000"
+                style={{ width: `${progressPercent}%` }}
+              ></div>
             </div>
-            <button
-              onClick={handleCopy}
-              className="px-4 py-2.5 bg-gray-900 hover:bg-gray-800 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-medium text-sm transition-colors"
-              title="Copy nội dung"
-            >
-              Copy
-            </button>
+            <p className="text-xs text-slate-400 mt-3 font-medium uppercase tracking-wide">
+              {progressPercent >= 100
+                ? "🎉 Đã đạt mục tiêu năm nay! Cảm ơn mọi người!"
+                : `Mục tiêu duy trì Server, Domain & Database`}
+            </p>
           </div>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-          * Vui lòng copy nội dung trên và dán vào phần lời nhắn khi chuyển
-          khoản nhé!
-        </p>
-      </div>
 
-      {/* KHU VỰC CHỌN PHƯƠNG THỨC THANH TOÁN */}
-      <div className="max-w-md mx-auto">
-        {/* Nút Tab (Chuyển đổi phương thức) */}
-        <div className="flex justify-center gap-3 mb-8 flex-wrap">
-          {paymentMethods.map((method) => (
-            <button
-              key={method.id}
-              onClick={() => setActiveTab(method.id)}
-              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 ${
-                activeTab === method.id
-                  ? `bg-gradient-to-r ${method.themeClass} text-white shadow-md scale-105`
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
-              }`}
-            >
-              {method.name}
-            </button>
-          ))}
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+          {/* CỘT TRÁI: FORM + QR CODE (8/12) */}
+          <div className="lg:col-span-8 bg-white rounded-3xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* PHẦN 1: FORM CHỌN TIỀN & XÁC NHẬN */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-bold text-slate-800 mb-3">
+                    1. Chọn mức ủng hộ
+                  </h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    {QUICK_AMOUNTS.map((item) => (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() =>
+                          setFormData({ ...formData, amount: item.value })
+                        }
+                        className={`py-3 px-2 rounded-xl text-sm font-bold border-2 transition-all ${
+                          formData.amount === item.value
+                            ? "border-blue-500 bg-blue-50 text-blue-700"
+                            : "border-slate-100 text-slate-600 hover:border-blue-200 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="mb-1">{item.label}</div>
+                        <div>{formatMoney(item.value)}</div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <input
+                      type="number"
+                      value={formData.amount}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          amount: Number(e.target.value),
+                        })
+                      }
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 font-bold text-slate-900 placeholder-slate-400 outline-none"
+                      placeholder="Hoặc nhập số tiền khác..."
+                    />
+                  </div>
+                </div>
 
-        {/* Khung hiển thị nội dung của phương thức được chọn */}
-        <div className="relative">
-          <div
-            className={`p-8 rounded-3xl shadow-sm border transition-colors duration-500 relative overflow-hidden group ${activeMethod.bgClass}`}
-          >
-            {/* Thanh màu trang trí ở trên cùng */}
-            <div
-              className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${activeMethod.themeClass}`}
-            ></div>
-
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-              {activeMethod.name}
-            </h2>
-            <p
-              className={`${activeMethod.textClass} font-extrabold text-lg mb-1 uppercase tracking-wide`}
-            >
-              {activeMethod.owner}
-            </p>
-            <p className="text-gray-600 dark:text-gray-400 font-medium mb-6">
-              {activeMethod.info}
-            </p>
-
-            {/* Nếu là dạng quét mã QR */}
-            {activeMethod.type === "qr" && activeMethod.image && (
-              <div className="bg-white p-2.5 rounded-2xl w-56 h-auto mx-auto border border-gray-200 dark:border-gray-700 shadow-sm transition-transform duration-500 hover:scale-105">
-                <img
-                  src={activeMethod.image}
-                  alt={`QR ${activeMethod.name}`}
-                  className="w-full h-auto object-contain rounded-xl"
-                />
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <h3 className="font-bold text-slate-800 mb-2">
+                    2. Lời nhắn & Xác nhận
+                  </h3>
+                  <input
+                    type="text"
+                    value={formData.donorName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, donorName: e.target.value })
+                    }
+                    placeholder="Tên của bạn (Tùy chọn)"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 text-slate-900 placeholder-slate-400 outline-none"
+                  />
+                  <textarea
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
+                    rows={2}
+                    placeholder="Lời nhắn..."
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 resize-none text-slate-900 placeholder-slate-400 outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-md disabled:opacity-70"
+                  >
+                    {loading
+                      ? "Đang xử lý..."
+                      : `Tôi đã chuyển khoản qua ${formData.paymentMethod}`}
+                  </button>
+                </form>
               </div>
-            )}
 
-            {/* Nếu là dạng Link (Ví dụ: PayPal, BuyMeACoffee) */}
-            {activeMethod.type === "link" && activeMethod.url && (
-              <a
-                href={activeMethod.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`inline-block mt-4 px-8 py-3.5 rounded-xl text-white font-bold transition-transform hover:-translate-y-1 shadow-lg bg-gradient-to-r ${activeMethod.themeClass}`}
-              >
-                Chuyển đến {activeMethod.name} &rarr;
-              </a>
-            )}
+              {/* PHẦN 2: CHỌN VÀ HIỂN THỊ MÃ QR */}
+              <div className="flex flex-col bg-slate-50 rounded-3xl p-6 border border-slate-100">
+                <h3 className="font-bold text-slate-800 mb-4 text-center">
+                  Quét mã thanh toán
+                </h3>
+
+                {/* TABS CHUYỂN PHƯƠNG THỨC */}
+                <div className="flex bg-slate-200 p-1 rounded-lg mb-6">
+                  {["Bank", "MoMo", "ZaloPay"].map((method) => (
+                    <button
+                      key={method}
+                      type="button"
+                      onClick={() =>
+                        setFormData({ ...formData, paymentMethod: method })
+                      }
+                      className={`flex-1 py-2 text-sm font-semibold rounded-md transition-all ${
+                        formData.paymentMethod === method
+                          ? "bg-white text-blue-600 shadow-sm"
+                          : "text-slate-500 hover:text-slate-700"
+                      }`}
+                    >
+                      {method}
+                    </button>
+                  ))}
+                </div>
+
+                {/* HIỂN THỊ QR THEO TAB ĐƯỢC CHỌN */}
+                <div className="flex flex-col items-center flex-1 justify-center w-full">
+                  {/* TAB: NGÂN HÀNG (Dùng VietQR động) */}
+                  {formData.paymentMethod === "Bank" && (
+                    <>
+                      <div className="bg-white p-3 rounded-2xl shadow-sm mb-4 border border-blue-100">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={qrUrlBank}
+                          alt="VietQR"
+                          className="w-56 h-auto rounded-lg"
+                        />
+                      </div>
+                      <div className="text-center space-y-1 text-sm text-slate-600">
+                        <p className="text-xs text-green-600 font-semibold mb-2">
+                          ✅ Quét là tự động điền số tiền & lời nhắn
+                        </p>
+                        <p>
+                          Ngân hàng:{" "}
+                          <span className="font-bold text-slate-900">
+                            {BANK_ID}
+                          </span>
+                        </p>
+                        <p>
+                          STK:{" "}
+                          <span className="font-bold text-slate-900">
+                            {ACCOUNT_NO}
+                          </span>
+                        </p>
+                        <p>
+                          Tên:{" "}
+                          <span className="font-bold text-slate-900">
+                            {ACCOUNT_NAME}
+                          </span>
+                        </p>
+                      </div>
+                    </>
+                  )}
+
+                  {/* TAB: MOMO (Cần ảnh tĩnh) */}
+                  {formData.paymentMethod === "MoMo" && (
+                    <div className="w-full flex flex-col items-center">
+                      <div className="bg-pink-50 p-3 rounded-2xl shadow-sm mb-4 border border-pink-200">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/images/qr-momo.jpg"
+                          alt="MoMo QR"
+                          className="w-56 h-56 object-cover rounded-lg fallback-img"
+                          onError={(e) =>
+                            (e.currentTarget.src =
+                              "https://placehold.co/224x224/ffe4e6/be185d?text=MoMo+QR")
+                          }
+                        />
+                      </div>
+                      {/* Bảng thông tin hướng dẫn khách tự nhập */}
+                      <div className="w-full max-w-xs bg-white border border-pink-100 rounded-xl p-4 text-sm text-slate-600 shadow-sm">
+                        <p className="text-center mb-2">
+                          Mở{" "}
+                          <span className="font-bold text-pink-600">MoMo</span>{" "}
+                          để quét mã
+                        </p>
+                        <div className="space-y-2 border-t border-dashed pt-2">
+                          <div className="flex justify-between items-center py-1">
+                            <span>Người nhận:</span>
+                            <span className="font-bold text-slate-900 text-right">
+                              {ACCOUNT_NAME}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-1">
+                            <span>SĐT:</span>
+                            <span className="font-bold text-slate-900 text-right">
+                              {MOMO_PHONE}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center bg-pink-50/50 p-1.5 rounded">
+                            <span>Số tiền:</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-green-600 text-base">
+                                {formatMoney(formData.amount)}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleCopy(formData.amount, "số tiền")
+                                }
+                                className="text-slate-400 hover:text-pink-600 transition-colors"
+                                title="Copy số tiền"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center bg-slate-50 p-1.5 rounded overflow-hidden">
+                            <span className="whitespace-nowrap mr-2">
+                              Lời nhắn:
+                            </span>
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              <span
+                                className="font-bold text-blue-600 truncate max-w-[90px]"
+                                title={formData.message}
+                              >
+                                {formData.message}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleCopy(formData.message, "lời nhắn")
+                                }
+                                className="text-slate-400 hover:text-pink-600 transition-colors flex-shrink-0"
+                                title="Copy lời nhắn"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-pink-500 italic text-center mt-3">
+                          *Bấm vào icon Copy để sao chép nội dung chính xác nhất
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB: ZALOPAY (Cần ảnh tĩnh) */}
+                  {formData.paymentMethod === "ZaloPay" && (
+                    <div className="w-full flex flex-col items-center">
+                      <div className="bg-blue-50 p-3 rounded-2xl shadow-sm mb-4 border border-blue-200">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/images/qr-zalopay.jpg"
+                          alt="ZaloPay QR"
+                          className="w-56 h-56 object-cover rounded-lg"
+                          onError={(e) =>
+                            (e.currentTarget.src =
+                              "https://placehold.co/224x224/dbeafe/1d4ed8?text=ZaloPay+QR")
+                          }
+                        />
+                      </div>
+                      {/* Bảng thông tin hướng dẫn khách tự nhập */}
+                      <div className="w-full max-w-xs bg-white border border-blue-100 rounded-xl p-4 text-sm text-slate-600 shadow-sm">
+                        <p className="text-center mb-2">
+                          Mở{" "}
+                          <span className="font-bold text-blue-600">
+                            ZaloPay
+                          </span>{" "}
+                          để quét mã
+                        </p>
+                        <div className="space-y-2 border-t border-dashed pt-2">
+                          <div className="flex justify-between items-center py-1">
+                            <span>Người nhận:</span>
+                            <span className="font-bold text-slate-900 text-right">
+                              {ACCOUNT_NAME}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center py-1">
+                            <span>SĐT:</span>
+                            <span className="font-bold text-slate-900 text-right">
+                              {ZALOPAY_PHONE}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center bg-blue-50/50 p-1.5 rounded">
+                            <span>Số tiền:</span>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-green-600 text-base">
+                                {formatMoney(formData.amount)}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleCopy(formData.amount, "số tiền")
+                                }
+                                className="text-slate-400 hover:text-blue-600 transition-colors"
+                                title="Copy số tiền"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex justify-between items-center bg-slate-50 p-1.5 rounded overflow-hidden">
+                            <span className="whitespace-nowrap mr-2">
+                              Lời nhắn:
+                            </span>
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              <span
+                                className="font-bold text-blue-600 truncate max-w-[90px]"
+                                title={formData.message}
+                              >
+                                {formData.message}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleCopy(formData.message, "lời nhắn")
+                                }
+                                className="text-slate-400 hover:text-blue-600 transition-colors flex-shrink-0"
+                                title="Copy lời nhắn"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="h-4 w-4"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-blue-500 italic text-center mt-3">
+                          *Bấm vào icon Copy để sao chép nội dung chính xác nhất
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CỘT PHẢI: TOP SUPPORTER (4/12) */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="bg-gradient-to-b from-amber-50 to-white rounded-3xl shadow-sm border border-amber-100 p-6 md:p-8">
+              <h2 className="text-xl font-extrabold text-amber-600 flex items-center gap-2 mb-6">
+                <span>🏆</span> Top Người Ủng Hộ
+              </h2>
+              <div className="space-y-4">
+                {stats?.topSupporters && stats.topSupporters.length > 0 ? (
+                  stats.topSupporters.map((top, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-white rounded-xl border border-amber-50 shadow-sm"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
+                            index === 0
+                              ? "bg-yellow-400 text-yellow-900"
+                              : index === 1
+                                ? "bg-slate-300 text-slate-800"
+                                : index === 2
+                                  ? "bg-amber-600 text-white"
+                                  : "bg-slate-100 text-slate-500"
+                          }`}
+                        >
+                          {index + 1}
+                        </div>
+                        <span className="font-bold text-slate-700">
+                          {top.donorName}
+                        </span>
+                      </div>
+                      <span className="font-bold text-green-600">
+                        {formatMoney(top.totalAmount)}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-slate-500 text-sm text-center py-4">
+                    Chưa có dữ liệu vinh danh.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+
+      <DonationMarquee />
+    </main>
   );
 }

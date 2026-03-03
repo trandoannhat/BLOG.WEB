@@ -3,3 +3,21 @@
 
 /* Cú pháp kích hoạt Dark Mode bằng class cho Tailwind v4 */
 @variant dark (&:where(.dark, .dark *));
+/* Hiệu ứng chữ chạy cho phần Donate Marquee */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+/* Dừng chữ lại khi trỏ chuột vào (Tùy chọn thêm cho mượt) */
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
