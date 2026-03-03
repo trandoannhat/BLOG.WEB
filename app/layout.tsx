@@ -12,20 +12,22 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  // 👇 ĐÃ CẬP NHẬT: Tiêu đề chuẩn hướng Giải pháp / Doanh nghiệp
-  title: "NhatSoft | Giải pháp Phần mềm & Kiến trúc Hệ thống",
+  // 👇 ĐÃ CẬP NHẬT: Tiêu đề mang đậm chất cá nhân chuyên gia
+  title: "NhatDev | Tech Lead & Solution Architect",
 
-  // 👇 ĐÃ CẬP NHẬT: Mô tả nhấn mạnh vào năng lực xây dựng hệ thống và chuyên môn
+  // 👇 ĐÃ CẬP NHẬT: Mô tả nhấn mạnh vào kinh nghiệm cá nhân, tư duy hệ thống
   description:
-    "NhatSoft chuyên thiết kế kiến trúc hệ thống (System Design), phát triển phần mềm hiệu suất cao và cung cấp các giải pháp chuyển đổi số. Nơi chia sẻ kinh nghiệm thực chiến chuyên sâu với .NET, Next.js và Cloud Computing.",
+    "Blog cá nhân của NhatDev (Trần Doãn Nhất). Nơi chia sẻ kinh nghiệm thực chiến về thiết kế kiến trúc hệ thống (System Design), quản lý dự án (Tech Lead), và phát triển phần mềm hiệu suất cao với .NET, Next.js & Cloud.",
 
-  // 👇 ĐÃ CẬP NHẬT: Bộ từ khóa thu hút các đối tác/khách hàng doanh nghiệp
+  // 👇 ĐÃ CẬP NHẬT: Từ khóa kết hợp giữa thương hiệu cá nhân và chức danh chuyên gia
   keywords: [
+    "Trần Doãn Nhất",
+    "NhatDev",
     "NhatSoft",
-    "Giải pháp phần mềm",
-    "Kiến trúc hệ thống",
+    "Tech Lead",
+    "Solution Architect",
     "System Design",
-    "Chuyển đổi số",
+    "Kiến trúc hệ thống",
     ".NET",
     "Next.js",
     "Tech Blog",
@@ -66,7 +68,8 @@ export default function RootLayout({
           {/* FOOTER */}
           <footer className="bg-white dark:bg-gray-900 border-t dark:border-gray-800 py-8 mt-auto transition-colors duration-300 text-center">
             <div className="max-w-6xl mx-auto px-6 text-gray-500 dark:text-gray-400 text-sm">
-              © {new Date().getFullYear()} NhatSoft. Phát triển và quản trị bởi
+              {/* 👇 ĐÃ CẬP NHẬT: Footer thể hiện tính cá nhân nhưng vẫn giữ lại NhatSoft làm tiền đề */}
+              © {new Date().getFullYear()} NhatDev. Phát triển và quản trị bởi
               NhatSoft. Tất cả quyền được bảo lưu.
             </div>
           </footer>

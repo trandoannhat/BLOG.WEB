@@ -2,6 +2,7 @@ import Link from "next/link";
 
 interface ProjectDto {
   id: string;
+  slug: string; // 👈 ĐÃ THÊM: Bắt buộc phải có để lấy dữ liệu từ API
   name: string;
   clientName?: string;
   description: string;
@@ -52,12 +53,12 @@ export default async function ProjectsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project) => (
             <div
-              key={project.id}
+              key={project.id} // Key vẫn dùng ID cho độc nhất (React rules)
               className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300"
             >
-              {/* BỌC LINK CHO ẢNH VÀ NỘI DUNG */}
+              {/* 👇 ĐÃ SỬA: Đổi từ project.id sang project.slug */}
               <Link
-                href={`/projects/${project.id}`}
+                href={`/projects/${project.slug}`}
                 className="flex flex-col flex-1 cursor-pointer"
               >
                 {/* Ảnh Thumbnail */}
@@ -133,8 +134,9 @@ export default async function ProjectsPage() {
                   )}
                   {/* Nút Xem chi tiết nếu không có cả 2 link ngoài */}
                   {!project.liveDemoUrl && !project.sourceCodeUrl && (
+                    // 👇 ĐÃ SỬA: Đổi từ project.id sang project.slug
                     <Link
-                      href={`/projects/${project.id}`}
+                      href={`/projects/${project.slug}`}
                       className="flex-1 text-center py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 rounded-lg text-sm font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
                     >
                       Xem chi tiết &rarr;
