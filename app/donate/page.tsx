@@ -6,7 +6,7 @@ import { donationService, DonationStats } from "@/services/donation.service";
 import DonationMarquee from "@/components/DonationMarquee";
 
 const QUICK_AMOUNTS = [
-  { label: "☕ Cà phê", value: 20000 },
+  { label: "☕ Cà phê", value: 20000 }, ///
   { label: "🍜 Bát phở", value: 50000 },
   { label: "🍕 Pizza", value: 100000 },
 ];
