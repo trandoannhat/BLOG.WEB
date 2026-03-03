@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Metadata } from "next";
 
+// Interface đã thêm trường slug
 interface ProjectDetail {
   id: string;
+  slug: string;
   name: string;
   description: string;
   thumbnailUrl: string;
@@ -11,14 +14,15 @@ interface ProjectDetail {
   sourceCodeUrl: string;
   startDate: string;
   endDate: string;
-  content?: string; // Bắt buộc dùng cho các dự án viết chi tiết như DTSoft
+  content?: string;
 }
 
-async function getProjectDetail(id: string): Promise<ProjectDetail | null> {
+// Hàm Fetch Data: Dùng SLUG gọi API mới
+async function getProjectDetail(slug: string): Promise<ProjectDetail | null> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/Projects/${id}`,
-      { cache: "no-store" },
+      `${process.env.NEXT_PUBLIC_API_URL}/Projects/slug/${slug}`,
+      { cache: "no-store" }, // Luôn lấy data mới nhất
     );
     if (!res.ok) return null;
     const json = await res.json();
@@ -28,14 +32,43 @@ async function getProjectDetail(id: string): Promise<ProjectDetail | null> {
   }
 }
 
+// TỐI ƯU SEO: Tự động sinh thẻ Meta (Open Graph) khi share link
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>; // Sửa Promise<{ id: string }> thành Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getProjectDetail(slug);
+
+  if (!project) return { title: "Không tìm thấy dự án" };
+
+  return {
+    title: `${project.name} | NhatDev`,
+    description: project.description,
+    openGraph: {
+      title: project.name,
+      description: project.description,
+      images: [
+        project.thumbnailUrl ||
+          "https://via.placeholder.com/1200x800?text=NhatSoft+Project",
+      ],
+    },
+  };
+}
+
+// COMPONENT HIỂN THỊ CHÍNH
 export default async function ProjectDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>; // Đổi 'id' thành 'slug'
 }) {
-  const { id } = await params;
-  const project = await getProjectDetail(id);
+  const { slug } = await params; // Lấy 'slug' từ URL
 
+  // Gọi API lấy thông tin theo slug
+  const project = await getProjectDetail(slug);
+
+  // Nếu gõ link bậy hoặc project không tồn tại
   if (!project) {
     notFound();
   }
@@ -129,9 +162,7 @@ export default async function ProjectDetailPage({
         </div>
 
         {/* MÔ TẢ & NỘI DUNG CHI TIẾT DỰ ÁN */}
-        {/* Class dark:prose-invert rất quan trọng để đổi màu text bài viết sang trắng khi ở chế độ Dark Mode */}
         <div className="prose prose-lg dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
-          {/* Nếu KHÔNG có content chi tiết thì mới hiện description */}
           {!project.content && (
             <>
               <h2>Tổng quan dự án</h2>
@@ -139,7 +170,6 @@ export default async function ProjectDetailPage({
             </>
           )}
 
-          {/* ĐÃ MỞ KHÓA: Nếu có trường Content HTML từ Editor, render trực tiếp ra đây */}
           {project.content && (
             <div dangerouslySetInnerHTML={{ __html: project.content }} />
           )}
