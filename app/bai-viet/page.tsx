@@ -1,6 +1,6 @@
 // https://nhatdev.top
 // app/bai-viet/page.tsx ....
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 import dayjs from "dayjs";
 import Link from "next/link";
 
