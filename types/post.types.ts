@@ -12,6 +12,7 @@ export interface PostDto {
   createdAt: string;
   categoryId: string;
   categoryName: string; // Tên danh mục để hiển thị trên bảng
+  categorySlug: string;
   authorName: string;
 }
 
