@@ -1,3 +1,4 @@
+// https://nhatdev.top
 // app/blog/page.tsx
 import dayjs from "dayjs";
 import Link from "next/link";
@@ -9,6 +10,7 @@ interface PostDto {
   summary: string;
   thumbnailUrl: string;
   categoryName: string;
+  categorySlug: string; // Đảm bảo Backend trả về thêm trường này
   createdAt: string;
   viewCount: number;
 }
@@ -21,11 +23,13 @@ interface CategoryTreeDto {
   children: CategoryTreeDto[];
 }
 
-async function getPosts(categoryId?: string): Promise<PostDto[]> {
+// 👇 SỬA: Chấp nhận categorySlug để gọi API mới
+async function getPosts(categorySlug?: string): Promise<PostDto[]> {
   try {
     let url = `${process.env.NEXT_PUBLIC_API_URL}/Posts?PageSize=20&IsPublished=true`;
-    if (categoryId) {
-      url += `&CategoryId=${categoryId}`;
+    if (categorySlug) {
+      // Gửi CategorySlug lên Backend để lọc cả cha lẫn con
+      url += `&CategorySlug=${categorySlug}`;
     }
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return [];
@@ -41,7 +45,9 @@ async function getCategoryTree(): Promise<CategoryTreeDto[]> {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/Categories/tree`,
-      { cache: "no-store" },
+      {
+        cache: "no-store",
+      },
     );
     if (!res.ok) return [];
     const json = await res.json();
@@ -52,50 +58,39 @@ async function getCategoryTree(): Promise<CategoryTreeDto[]> {
   }
 }
 
-// 👇 ĐÃ SỬA: Hàm lọc đệ quy cộng dồn số bài viết từ con lên cha
 function filterActiveCategories(
   categories: CategoryTreeDto[],
 ): CategoryTreeDto[] {
-  return (
-    categories
-      .map((cat) => {
-        // Tạo một bản sao để không làm hỏng dữ liệu gốc
-        const newCat = { ...cat };
-
-        // Nếu có danh mục con, gọi đệ quy để lọc con trước
-        if (newCat.children && newCat.children.length > 0) {
-          newCat.children = filterActiveCategories(newCat.children);
-
-          // Tính tổng số bài viết của tất cả các danh mục con hiện có
-          const childrenPostCountSum = newCat.children.reduce(
-            (sum, child) => sum + child.postCount,
-            0,
-          );
-
-          // Cộng dồn số lượng đó vào danh mục cha
-          newCat.postCount += childrenPostCountSum;
-        }
-
-        return newCat;
-      })
-      // Cuối cùng, chỉ giữ lại danh mục nếu tổng số bài viết (của nó + của con) lớn hơn 0
-      .filter((cat) => cat.postCount > 0)
-  );
+  return categories
+    .map((cat) => {
+      const newCat = { ...cat };
+      if (newCat.children && newCat.children.length > 0) {
+        newCat.children = filterActiveCategories(newCat.children);
+        const childrenPostCountSum = newCat.children.reduce(
+          (sum, child) => sum + child.postCount,
+          0,
+        );
+        newCat.postCount += childrenPostCountSum;
+      }
+      return newCat;
+    })
+    .filter((cat) => cat.postCount > 0);
 }
 
 const CategoryNode = ({
   category,
-  currentCatId,
+  currentSlug,
 }: {
   category: CategoryTreeDto;
-  currentCatId?: string;
+  currentSlug?: string;
 }) => {
-  const isActive = category.id === currentCatId;
+  const isActive = category.slug === currentSlug;
 
   return (
     <li className="mb-2">
       <Link
-        href={`/blog?categoryId=${category.id}`}
+        // 👇 SỬA: Dùng slug thay vì ID trên URL
+        href={`/blog?category=${category.slug}`}
         scroll={false}
         className={`flex items-center justify-between text-sm py-1.5 px-2 rounded-md transition-colors ${
           isActive
@@ -115,7 +110,7 @@ const CategoryNode = ({
             <CategoryNode
               key={child.id}
               category={child}
-              currentCatId={currentCatId}
+              currentSlug={currentSlug}
             />
           ))}
         </ul>
@@ -127,17 +122,16 @@ const CategoryNode = ({
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ categoryId?: string }>;
+  searchParams: Promise<{ category?: string }>;
 }) {
   const resolvedParams = await searchParams;
-  const currentCategoryId = resolvedParams.categoryId;
+  const currentCategorySlug = resolvedParams.category;
 
   const [posts, categories] = await Promise.all([
-    getPosts(currentCategoryId),
+    getPosts(currentCategorySlug),
     getCategoryTree(),
   ]);
 
-  // Sử dụng hàm lọc để lấy ra các danh mục hợp lệ & đã cộng dồn số liệu
   const activeCategories = filterActiveCategories(categories);
 
   return (
@@ -147,36 +141,33 @@ export default async function BlogPage({
           Blog & Chia sẻ
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">
-          Nơi tôi ghi chép lại hành trình làm nghề, những kinh nghiệm thực chiến
-          về lập trình Backend, Frontend và Tư duy hệ thống.
+          Nơi tôi ghi chép lại hành trình làm nghề và tư duy hệ thống.
         </p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
         <aside className="w-full md:w-1/4 flex-shrink-0">
-          <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm sticky top-24 transition-colors">
+          <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm sticky top-24">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-800 pb-3">
-              Danh mục bài viết
+              Danh mục
             </h2>
-
             <Link
               href="/blog"
               scroll={false}
               className={`block mb-4 text-sm font-medium py-1.5 px-2 rounded-md transition-colors ${
-                !currentCategoryId
+                !currentCategorySlug
                   ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold"
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
               }`}
             >
               Tất cả bài viết
             </Link>
-
             <ul className="space-y-1">
               {activeCategories.map((cat) => (
                 <CategoryNode
                   key={cat.id}
                   category={cat}
-                  currentCatId={currentCategoryId}
+                  currentSlug={currentCategorySlug}
                 />
               ))}
             </ul>
@@ -185,8 +176,8 @@ export default async function BlogPage({
 
         <main className="w-full md:w-3/4">
           {posts.length === 0 ? (
-            <div className="text-center text-gray-500 dark:text-gray-400 py-20 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800">
-              Chưa có bài viết nào trong danh mục này...
+            <div className="text-center text-gray-500 py-20 border-2 border-dashed border-gray-200 rounded-2xl bg-white dark:bg-gray-800">
+              Chưa có bài viết nào...
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -194,9 +185,9 @@ export default async function BlogPage({
                 <Link
                   href={`/blog/${post.slug}`}
                   key={post.id}
-                  className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300"
+                  className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300"
                 >
-                  <div className="relative h-48 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden border-b border-gray-100 dark:border-gray-700">
+                  <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
                     <img
                       src={
                         post.thumbnailUrl ||
@@ -205,27 +196,23 @@ export default async function BlogPage({
                       alt={post.title}
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-3 left-3 bg-white/95 dark:bg-gray-900/90 px-3 py-1 rounded-md text-xs font-bold text-blue-600 dark:text-blue-400 shadow-sm uppercase tracking-wide">
+                    <div className="absolute top-3 left-3 bg-white/95 dark:bg-gray-900/90 px-3 py-1 rounded-md text-xs font-bold text-blue-600 uppercase">
                       {post.categoryName}
                     </div>
                   </div>
-
                   <div className="p-6 flex flex-col flex-1">
-                    <div className="flex items-center text-xs text-gray-400 dark:text-gray-500 font-medium mb-3 gap-2">
+                    <div className="flex items-center text-xs text-gray-400 mb-3 gap-2">
                       <span>{dayjs(post.createdAt).format("DD/MM/YYYY")}</span>
                       <span>•</span>
                       <span>{post.viewCount} lượt xem</span>
                     </div>
-
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 transition-colors">
                       {post.title}
                     </h3>
-
-                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-5 flex-1 leading-relaxed">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-5 flex-1">
                       {post.summary}
                     </p>
-
-                    <div className="text-sm font-bold text-blue-600 dark:text-blue-400 mt-auto flex items-center group-hover:translate-x-1 transition-transform">
+                    <div className="text-sm font-bold text-blue-600 mt-auto flex items-center group-hover:translate-x-1 transition-transform">
                       Đọc tiếp <span className="ml-1">&rarr;</span>
                     </div>
                   </div>

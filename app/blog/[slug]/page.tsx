@@ -1,3 +1,4 @@
+// https://nhatdev.top
 // app/blog/[slug]/page.tsx
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -9,7 +10,9 @@ async function getPostDetail(slug: string): Promise<PostDto | null> {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/Posts/byslug/${slug}`,
-      { cache: "no-store" },
+      {
+        cache: "no-store",
+      },
     );
     if (!res.ok) return null;
     const json = await res.json();
@@ -19,25 +22,26 @@ async function getPostDetail(slug: string): Promise<PostDto | null> {
   }
 }
 
+// 👇 SỬA: Lấy bài liên quan bằng CategorySlug thay vì ID
 async function getRelatedPosts(
-  categoryId: string,
+  categorySlug: string,
   currentPostId: string,
 ): Promise<PostDto[]> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/Posts?CategoryId=${categoryId}&PageSize=4&IsPublished=true`,
+      `${process.env.NEXT_PUBLIC_API_URL}/Posts?CategorySlug=${categorySlug}&PageSize=4&IsPublished=true`,
       { cache: "no-store" },
     );
     if (!res.ok) return [];
     const json = await res.json();
     const posts = json.data || [];
+    // Lọc bỏ bài hiện tại
     return posts.filter((p: PostDto) => p.id !== currentPostId).slice(0, 3);
   } catch (error) {
     return [];
   }
 }
 
-// 👇 ĐOẠN ĐƯỢC THÊM VÀO: Hàm tạo SEO tự động cho bài viết
 export async function generateMetadata({
   params,
 }: {
@@ -45,10 +49,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostDetail(slug);
-
-  if (!post) {
-    return { title: "Không tìm thấy bài viết | NhatDev" };
-  }
+  if (!post) return { title: "Không tìm thấy bài viết | NhatDev" };
 
   return {
     title: `${post.title} | NhatDev`,
@@ -58,21 +59,11 @@ export async function generateMetadata({
       description: post.summary,
       url: `https://nhatdev.top/blog/${post.slug}`,
       siteName: "NhatDev Blog",
-      images: [
-        {
-          url: post.thumbnailUrl || "https://nhatdev.top/default-og-image.jpg",
-          width: 1200,
-          height: 630,
-          alt: post.title,
-        },
-      ],
+      images: [{ url: post.thumbnailUrl || "" }],
       type: "article",
-      publishedTime: post.createdAt,
-      authors: [post.authorName || "NhatDev"],
     },
   };
 }
-// 👆 KẾT THÚC PHẦN THÊM VÀO
 
 export default async function BlogPostPage({
   params,
@@ -82,14 +73,13 @@ export default async function BlogPostPage({
   const { slug } = await params;
   const post = await getPostDetail(slug);
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
 
-  const relatedPosts = await getRelatedPosts(post.categoryId, post.id);
+  // 👇 SỬA: Truyền categorySlug (đảm bảo Backend trả về trường này trong chi tiết bài viết)
+  const relatedPosts = await getRelatedPosts(post.categorySlug, post.id);
 
   return (
-    <article className="max-w-4xl mx-auto py-10">
+    <article className="max-w-4xl mx-auto py-10 px-4">
       <Link
         href="/blog"
         className="text-gray-500 hover:text-blue-600 transition-colors mb-8 inline-flex items-center font-medium"
@@ -99,8 +89,9 @@ export default async function BlogPostPage({
 
       <header className="mb-10 text-center">
         <Link
-          href={`/blog?categoryId=${post.categoryId}`}
-          className="inline-block bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-sm font-bold tracking-wide uppercase mb-4 hover:bg-blue-100 transition"
+          // 👇 SỬA: Link ở danh mục bài viết chi tiết cũng dùng slug
+          href={`/blog?category=${post.categorySlug}`}
+          className="inline-block bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-sm font-bold uppercase mb-4 hover:bg-blue-100 transition"
         >
           {post.categoryName}
         </Link>
@@ -132,13 +123,7 @@ export default async function BlogPostPage({
       )}
 
       <div
-        className="prose prose-lg max-w-none text-gray-800 dark:text-gray-200
-                   prose-headings:text-gray-900 dark:prose-headings:text-white prose-headings:font-bold
-                   prose-a:text-blue-600 dark:prose-a:text-blue-400 hover:prose-a:text-blue-500
-                   prose-img:rounded-xl prose-img:mx-auto prose-img:shadow-sm
-                   prose-strong:text-gray-900 dark:prose-strong:text-white
-                   prose-blockquote:text-gray-700 dark:prose-blockquote:text-gray-300
-                   dark:prose-invert mb-20"
+        className="prose prose-lg max-w-none dark:prose-invert mb-20"
         dangerouslySetInnerHTML={{ __html: post.content }}
       />
 
@@ -158,14 +143,14 @@ export default async function BlogPostPage({
                   <img
                     src={
                       related.thumbnailUrl ||
-                      "https://via.placeholder.com/400x300?text=No+Image"
+                      "https://via.placeholder.com/400x300"
                     }
                     alt={related.title}
                     className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>
                 <div className="p-4 flex flex-col flex-1">
-                  <h4 className="font-bold text-gray-900 mb-2 group-hover:text-blue-600 line-clamp-2 text-base">
+                  <h4 className="font-bold text-gray-900 mb-2 group-hover:text-blue-600 line-clamp-2">
                     {related.title}
                   </h4>
                   <div className="text-xs text-gray-500 mt-auto">
