@@ -1,3 +1,5 @@
+// app/tin-tuc/page.tsx
+export const dynamic = "force-dynamic";
 import dayjs from "dayjs";
 import Link from "next/link";
 
@@ -30,7 +32,7 @@ async function getNewsPosts(): Promise<PostDto[]> {
         c.name?.toLowerCase().includes("tin tức"),
     );
 
-    // 3. Nếu không có danh mục Tin tức, hoặc tìm thấy nhưng lấy API lỗi
+    // 3. Nếu không có danh mục Tin tức
     if (!newsCategory) return [];
 
     const postRes = await fetch(
@@ -52,26 +54,27 @@ export default async function NewsPage() {
   return (
     <div className="py-12 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight transition-colors">
           Tin tức & Cập nhật
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
+        <p className="text-lg text-gray-600 dark:text-gray-400 transition-colors">
           Những thông báo mới nhất về dự án, hệ thống và các hoạt động của
           NhatSoft.
         </p>
       </div>
 
       {posts.length === 0 ? (
-        <div className="text-center text-gray-500 dark:text-gray-400 py-20 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800">
+        <div className="text-center text-gray-500 dark:text-gray-400 py-20 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-2xl bg-white dark:bg-gray-800 transition-colors">
           Hiện tại chưa có tin tức nào được đăng tải...
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {posts.map((post) => (
             <Link
-              href={`/blog/${post.slug}`}
+              // 👇 VIỆT HÓA URL (blog -> bai-viet)
+              href={`/bai-viet/${post.slug}`}
               key={post.id}
-              className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300"
+              className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 shadow-sm"
             >
               <div className="relative h-56 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
                 <img
@@ -88,17 +91,18 @@ export default async function NewsPage() {
               </div>
 
               <div className="p-6 flex flex-col flex-1">
-                <div className="flex items-center text-xs text-gray-400 dark:text-gray-500 font-medium mb-3 gap-2">
+                <div className="flex items-center text-xs text-gray-400 dark:text-gray-500 font-medium mb-3 gap-2 transition-colors">
                   <span>{dayjs(post.createdAt).format("DD/MM/YYYY")}</span>
                   <span>•</span>
                   <span>{post.viewCount} lượt xem</span>
                 </div>
 
+                {/* 👇 ĐÃ SỬA: Thêm dark:text-white */}
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 transition-colors">
                   {post.title}
                 </h3>
 
-                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-5 flex-1 leading-relaxed">
+                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3 mb-5 flex-1 leading-relaxed transition-colors">
                   {post.summary}
                 </p>
 

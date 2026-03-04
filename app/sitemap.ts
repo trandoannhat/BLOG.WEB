@@ -1,19 +1,17 @@
 // app/sitemap.ts
 import { MetadataRoute } from "next";
 
-// Định nghĩa kiểu dữ liệu gọn nhẹ để lấy sitemap
-interface PostSitemapDto {
+interface SitemapDto {
   slug: string;
   createdAt: string;
 }
 
-// Hàm lấy danh sách tất cả bài viết đã xuất bản
-async function getAllPostsForSitemap(): Promise<PostSitemapDto[]> {
+// 1. Hàm lấy danh sách bài viết
+async function getPosts(): Promise<SitemapDto[]> {
   try {
-    // Lấy tối đa 1000 bài viết (bạn có thể tăng lên nếu blog cực lớn)
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/Posts?PageSize=1000&IsPublished=true`,
-      { cache: "no-store" }, // Dùng no-store để luôn lấy dữ liệu mới nhất
+      { cache: "no-store" },
     );
     if (!res.ok) return [];
     const json = await res.json();
@@ -23,48 +21,89 @@ async function getAllPostsForSitemap(): Promise<PostSitemapDto[]> {
   }
 }
 
+// 2. Hàm lấy danh sách dự án
+async function getProjects(): Promise<SitemapDto[]> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/Projects?PageSize=100`,
+      { cache: "no-store" },
+    );
+    if (!res.ok) return [];
+    const json = await res.json();
+    // Lưu ý: Project thường dùng trường StartDate hoặc CreatedAt, tùy DB của bạn
+    return json.data || [];
+  } catch (error) {
+    return [];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://nhatdev.top";
 
-  // 1. Lấy dữ liệu bài viết từ API
-  const posts = await getAllPostsForSitemap();
+  // Lấy dữ liệu đồng thời để tối ưu thời gian gen sitemap
+  const [posts, projects] = await Promise.all([getPosts(), getProjects()]);
 
-  // 2. Tạo mảng URLs cho các bài viết (Dynamic Routes)
+  // 3. URLs cho bài viết (Việt hóa: /bai-viet)
   const postUrls: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
+    url: `${baseUrl}/bai-viet/${post.slug}`,
     lastModified: new Date(post.createdAt),
     changeFrequency: "weekly",
-    priority: 0.8, // Độ ưu tiên (0.0 đến 1.0)
+    priority: 0.8,
   }));
 
-  // 3. Khai báo các trang tĩnh (Static Routes)
+  // 4. URLs cho dự án (Việt hóa: /du-an)
+  const projectUrls: MetadataRoute.Sitemap = projects.map((proj) => ({
+    url: `${baseUrl}/du-an/${proj.slug}`,
+    lastModified: proj.createdAt ? new Date(proj.createdAt) : new Date(),
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
+  // 5. Khai báo các trang tĩnh (Đã Việt hóa URL)
   const staticUrls: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}`,
       lastModified: new Date(),
       changeFrequency: "daily",
-      priority: 1.0, // Trang chủ quan trọng nhất
+      priority: 1.0,
     },
     {
-      url: `${baseUrl}/blog`,
+      url: `${baseUrl}/bai-viet`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/projects`,
+      url: `${baseUrl}/du-an`,
       lastModified: new Date(),
-      changeFrequency: "monthly",
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/tin-tuc`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/about`,
+      url: `${baseUrl}/gioi-thieu`,
       lastModified: new Date(),
-      changeFrequency: "yearly",
+      changeFrequency: "monthly",
       priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/lien-he`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/ung-ho`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
     },
   ];
 
-  // 4. Gộp tất cả lại và trả về cho Next.js tự render ra XML
-  return [...staticUrls, ...postUrls];
+  return [...staticUrls, ...postUrls, ...projectUrls];
 }

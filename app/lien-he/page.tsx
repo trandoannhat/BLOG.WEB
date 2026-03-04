@@ -1,4 +1,4 @@
-// app/contact/page.tsx
+// app/lien-he/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,12 +7,12 @@ import { toast } from "react-hot-toast";
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
 
-  // Hàm xử lý khi submit form (Hiện tại là giả lập, sau này bạn có thể nối với API .NET)
+  // Hàm xử lý khi submit form
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    // Giả lập thời gian gửi
+    // Giả lập thời gian gửi (Sau này bạn nối API .NET tại đây)
     setTimeout(() => {
       toast.success(
         "Gửi yêu cầu thành công! NhatSoft sẽ liên hệ lại sớm nhất.",
@@ -26,13 +26,13 @@ export default function ContactPage() {
     <div className="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
+        <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-6 tracking-tight transition-colors">
           Liên hệ với{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
             NhatSoft
           </span>
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto transition-colors">
           Bạn đang có một dự án phần mềm cần triển khai? Hay cần tư vấn về thiết
           kế kiến trúc hệ thống? Hãy để lại thông tin, chúng tôi sẽ phản hồi
           trong vòng 24h.
@@ -43,13 +43,13 @@ export default function ContactPage() {
         {/* CỘT TRÁI: THÔNG TIN & BẢN ĐỒ */}
         <div className="space-y-10">
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 transition-colors">
               Thông tin liên hệ
             </h3>
             <div className="space-y-6">
               {/* Phone / Zalo */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center shrink-0 transition-colors">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -65,10 +65,10 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                  <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase transition-colors">
                     Hotline / Zalo
                   </p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  <p className="text-lg font-bold text-gray-900 dark:text-white transition-colors">
                     0907.011.886
                   </p>
                 </div>
@@ -76,7 +76,7 @@ export default function ContactPage() {
 
               {/* Email */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center shrink-0 transition-colors">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -92,10 +92,10 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                  <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase transition-colors">
                     Email
                   </p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  <p className="text-lg font-bold text-gray-900 dark:text-white transition-colors">
                     contact@nhatsoft.com
                   </p>
                 </div>
@@ -103,7 +103,7 @@ export default function ContactPage() {
 
               {/* Location */}
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center shrink-0 transition-colors">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -125,10 +125,10 @@ export default function ContactPage() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase">
+                  <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase transition-colors">
                     Trụ sở
                   </p>
-                  <p className="text-lg font-bold text-gray-900 dark:text-white">
+                  <p className="text-lg font-bold text-gray-900 dark:text-white transition-colors">
                     TP. Hồ Chí Minh, Việt Nam
                   </p>
                 </div>
@@ -136,10 +136,10 @@ export default function ContactPage() {
             </div>
           </div>
 
-          {/* BẢN ĐỒ GOOGLE MAP (Nhúng iframe) */}
-          <div className="w-full h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative">
+          {/* BẢN ĐỒ GOOGLE MAP */}
+          <div className="w-full h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative transition-colors">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.4602324211153!2d106.6692804153343!3d10.776019462145304!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752ed189fa855d%3A0xf63e15bfce46baef!2sHo%20Chi%20Minh%20City!5e0!3m2!1sen!2s!4v1689000000000!5m2!1sen!2s"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.495208535266!2d106.6586!3d10.7711!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDQ2JzE2LjAiTiAxMDbCsDM5JzMxLjAiRQ!5e0!3m2!1svi!2svn!4v1646399999999!5m2!1svi!2svn"
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -152,15 +152,15 @@ export default function ContactPage() {
         </div>
 
         {/* CỘT PHẢI: FORM LIÊN HỆ */}
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+        <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 transition-colors">
             Gửi yêu cầu trực tuyến
           </h3>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
               >
                 Họ và Tên / Tên đơn vị *
               </label>
@@ -177,7 +177,7 @@ export default function ContactPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
                 >
                   Email liên hệ *
                 </label>
@@ -192,7 +192,7 @@ export default function ContactPage() {
               <div>
                 <label
                   htmlFor="phone"
-                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
                 >
                   Số điện thoại / Zalo
                 </label>
@@ -208,7 +208,7 @@ export default function ContactPage() {
             <div>
               <label
                 htmlFor="service"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
               >
                 Bạn quan tâm đến dịch vụ nào?
               </label>
@@ -228,7 +228,7 @@ export default function ContactPage() {
             <div>
               <label
                 htmlFor="message"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors"
               >
                 Nội dung chi tiết *
               </label>

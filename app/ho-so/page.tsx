@@ -22,7 +22,8 @@ export default function ProfilePage() {
       const token = localStorage.getItem("accessToken");
       if (!token) {
         toast.error("Vui lòng đăng nhập để xem trang này.");
-        router.push("/login");
+        // 👇 VIỆT HÓA URL (login -> dang-nhap)
+        router.push("/dang-nhap");
         return;
       }
 
@@ -38,7 +39,8 @@ export default function ProfilePage() {
 
         if (res.status === 401) {
           localStorage.removeItem("accessToken");
-          router.push("/login");
+          // 👇 VIỆT HÓA URL
+          router.push("/dang-nhap");
           return;
         }
 
@@ -71,26 +73,23 @@ export default function ProfilePage() {
 
     try {
       const uploadData = new FormData();
-      uploadData.append("file", file); // Tên tham số "file" phải khớp với Backend của bạn
+      uploadData.append("file", file);
 
-      // Lấy token để gửi kèm (Đề phòng API Files/upload yêu cầu đăng nhập)
       const token = localStorage.getItem("accessToken");
 
-      // 👇 ĐÃ SỬA: Đổi sang /Files/upload và thêm Authorization Header
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/Files/upload`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${token}`, // Gửi vé qua cửa bảo vệ
+            Authorization: `Bearer ${token}`,
           },
-          body: uploadData, // Không set Content-Type, trình duyệt tự sinh boundary cho form-data
+          body: uploadData,
         },
       );
 
       if (res.ok) {
         const json = await res.json();
-        // Cấu trúc trả về thường là json.data.url hoặc tương tự. Bạn console.log(json) nếu chưa nhận được ảnh nhé.
         const uploadedUrl = json.data?.url || json.url || json.data || "";
 
         setFormData({ ...formData, avatarUrl: uploadedUrl });
@@ -131,9 +130,7 @@ export default function ProfilePage() {
 
       if (res.ok) {
         toast.success("Cập nhật thông tin thành công!");
-        // Cập nhật lại tên trên Navbar
         localStorage.setItem("userName", formData.fullName);
-        //cập nhật lại avatar trên Navbar
         localStorage.setItem("avatarUrl", formData.avatarUrl);
         window.dispatchEvent(new Event("storage"));
       } else {
@@ -148,7 +145,7 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="py-20 text-center text-gray-500">
+      <div className="py-20 text-center text-gray-500 dark:text-gray-400">
         Đang tải thông tin...
       </div>
     );
@@ -156,13 +153,13 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
-      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-8">
+      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-8 transition-colors">
         Hồ sơ cá nhân
       </h1>
 
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* KHU VỰC AVATAR MỚI CÓ TÍCH HỢP UPLOAD */}
+          {/* KHU VỰC AVATAR */}
           <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
             <div className="relative group cursor-pointer flex-shrink-0">
               <img
@@ -178,7 +175,6 @@ export default function ProfilePage() {
                 }`}
               />
 
-              {/* Lớp phủ (Overlay) hiện ra khi rê chuột */}
               <label className="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
                 <svg
                   className="w-8 h-8"
@@ -199,7 +195,6 @@ export default function ProfilePage() {
                     d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                {/* Input chọn file ẩn bên dưới */}
                 <input
                   type="file"
                   accept="image/*"
@@ -211,17 +206,16 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex-1 w-full text-center sm:text-left">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 transition-colors">
                 Ảnh đại diện
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 transition-colors">
                 Định dạng JPG, PNG hoặc GIF. Bấm vào ảnh để tải lên.
               </p>
 
-              {/* Vẫn giữ ô nhập URL để người dùng có thể dán link trực tiếp nếu thích */}
               <input
                 type="text"
-                className="w-full px-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-4 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                 placeholder="Hoặc dán URL ảnh trực tiếp vào đây..."
                 value={formData.avatarUrl}
                 onChange={(e) =>
@@ -231,16 +225,15 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* CÁC THÔNG TIN KHÁC */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                 Họ và tên
               </label>
               <input
                 type="text"
                 required
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors"
                 value={formData.fullName}
                 onChange={(e) =>
                   setFormData({ ...formData, fullName: e.target.value })
@@ -249,12 +242,12 @@ export default function ProfilePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
                 Số điện thoại
               </label>
               <input
                 type="text"
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-colors"
                 value={formData.phoneNumber}
                 onChange={(e) =>
                   setFormData({ ...formData, phoneNumber: e.target.value })
@@ -264,22 +257,22 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 transition-colors">
               Email (Không thể thay đổi)
             </label>
             <input
               type="email"
               disabled
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 cursor-not-allowed outline-none"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 cursor-not-allowed outline-none transition-colors"
               value={formData.email}
             />
           </div>
 
-          <div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+          <div className="pt-4 border-t border-gray-100 dark:border-gray-700 transition-colors">
             <button
               type="submit"
               disabled={isSaving}
-              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-70"
+              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition-all disabled:opacity-70 shadow-md hover:shadow-lg"
             >
               {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
             </button>

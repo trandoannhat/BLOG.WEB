@@ -15,14 +15,12 @@ export default function AboutPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
-        {/* CỘT TRÁI: Ảnh Avatar & Thông tin cơ bản (Cố định khi cuộn) */}
+        {/* CỘT TRÁI: Ảnh Avatar & Thông tin cơ bản */}
         <div className="lg:col-span-4">
           <div className="sticky top-24 flex flex-col items-center lg:items-start text-center lg:text-left">
-            {/* Vòng sáng (Glow effect) bao quanh Avatar */}
             <div className="relative group mb-8">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
               <div className="relative w-56 h-56 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-2xl">
-                {/* 👇 Thay link ảnh dưới đây bằng ảnh chân dung thật của bạn */}
                 <img
                   src="https://images.unsplash.com/photo-1537511446984-935f663eb1f4?auto=format&fit=crop&q=80&w=400&h=400"
                   alt="Trần Doãn Nhất - NhatSoft"
@@ -43,7 +41,6 @@ export default function AboutPage() {
               hóa hiệu năng (Performance Tuning).
             </p>
 
-            {/* Nút Liên hệ & Icon Mạng xã hội */}
             <div className="w-full flex flex-col gap-4">
               <a
                 href="mailto:doannhatit@gmail.com"
@@ -75,7 +72,6 @@ export default function AboutPage() {
                     className="w-6 h-6"
                     fill="currentColor"
                     viewBox="0 0 24 24"
-                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"
@@ -93,29 +89,10 @@ export default function AboutPage() {
                     className="w-6 h-6"
                     fill="currentColor"
                     viewBox="0 0 24 24"
-                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"
                       d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-                <a
-                  href="#"
-                  className="p-3 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors"
-                >
-                  <span className="sr-only">Facebook</span>
-                  <svg
-                    className="w-6 h-6"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
                       clipRule="evenodd"
                     />
                   </svg>
@@ -127,12 +104,11 @@ export default function AboutPage() {
 
         {/* CỘT PHẢI: Chi tiết & Kỹ năng */}
         <div className="lg:col-span-8 space-y-16">
-          {/* Section: Giới thiệu */}
           <section>
-            <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+            <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 flex items-center gap-3 transition-colors">
               <span className="text-4xl">👋</span> Xin chào!
             </h3>
-            <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-300 leading-relaxed max-w-none">
+            <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-300 leading-relaxed max-w-none transition-colors">
               <p>
                 Mình là <strong>Trần Doãn Nhất</strong>, người đứng sau thương
                 hiệu <strong>NhatSoft</strong>. Với nền tảng vững chắc và nhiều
@@ -156,8 +132,7 @@ export default function AboutPage() {
             </div>
           </section>
 
-          {/* Blockquote: Triết lý */}
-          <blockquote className="border-l-4 border-blue-600 bg-blue-50 dark:bg-blue-900/20 px-6 py-5 rounded-r-2xl italic text-gray-700 dark:text-gray-300 text-lg shadow-sm">
+          <blockquote className="border-l-4 border-blue-600 bg-blue-50 dark:bg-blue-900/20 px-6 py-5 rounded-r-2xl italic text-gray-700 dark:text-gray-300 text-lg shadow-sm transition-colors">
             "Bất kỳ kẻ ngốc nào cũng có thể viết code cho máy tính hiểu. Nhưng
             lập trình viên giỏi là người viết code cho con người hiểu." <br />
             <span className="text-sm font-semibold text-blue-600 dark:text-blue-400 mt-2 block">
@@ -165,9 +140,9 @@ export default function AboutPage() {
             </span>
           </blockquote>
 
-          {/* Section: Kỹ năng chuyên môn */}
+          {/* Section: Kho vũ khí công nghệ */}
           <section>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-2">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 flex items-center gap-2 transition-colors">
               💻 Kho vũ khí công nghệ
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -188,7 +163,7 @@ export default function AboutPage() {
                     />
                   </svg>
                 </div>
-                <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 transition-colors">
                   Backend & Database
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -228,7 +203,7 @@ export default function AboutPage() {
                     />
                   </svg>
                 </div>
-                <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 transition-colors">
                   Frontend
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -267,7 +242,7 @@ export default function AboutPage() {
                     />
                   </svg>
                 </div>
-                <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4 transition-colors">
                   DevOps, Cloud & Khác
                 </h4>
                 <div className="flex flex-wrap gap-2">
@@ -291,13 +266,12 @@ export default function AboutPage() {
             </div>
           </section>
 
-          {/* Section: Kinh nghiệm / Định hướng */}
+          {/* Section: Định hướng tương lai */}
           <section>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2 transition-colors">
               🚀 Định hướng tương lai
             </h3>
-            <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden">
-              {/* Trang trí góc */}
+            <div className="bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-3xl p-8 border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden transition-colors">
               <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
 
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg relative z-10">
@@ -314,7 +288,7 @@ export default function AboutPage() {
                   Sẵn sàng cho những thử thách mới!
                 </span>
                 <Link
-                  href="/projects"
+                  href="/du-an"
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all hover:shadow-lg flex items-center gap-2"
                 >
                   Khám phá các Dự án

@@ -11,7 +11,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // State quản lý đăng nhập và User
   const [isMounted, setIsMounted] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
@@ -20,7 +19,6 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  // Hàm gom chung việc đọc LocalStorage
   const updateAuthData = () => {
     const token = localStorage.getItem("accessToken");
     const name = localStorage.getItem("userName");
@@ -28,7 +26,7 @@ export default function Navbar() {
 
     if (token) {
       setIsLoggedIn(true);
-      setUserName(name || "NhatSoft"); // Đã đổi NhatDev -> NhatSoft
+      setUserName(name || "NhatSoft");
       setAvatarUrl(avatar || "");
     } else {
       setIsLoggedIn(false);
@@ -43,7 +41,7 @@ export default function Navbar() {
 
     window.addEventListener("storage", updateAuthData);
     return () => window.removeEventListener("storage", updateAuthData);
-  }, [pathname]); // 👇 Đã thêm pathname vào đây để fix lỗi không đổi state khi Login xong
+  }, [pathname]);
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -60,26 +58,28 @@ export default function Navbar() {
     setIsProfileMenuOpen(false);
 
     toast.success("Đã đăng xuất thành công!");
-    router.push("/login");
+    // 👇 VIỆT HÓA URL
+    router.push("/dang-nhap");
   };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      // 👇 VIỆT HÓA URL (search -> tim-kiem)
+      router.push(`/tim-kiem?q=${encodeURIComponent(searchQuery.trim())}`);
       setIsMobileMenuOpen(false);
       setSearchQuery("");
     }
   };
 
-  // 👇 ĐÃ SỬA: Cập nhật lại mảng navLinks với các trang mới
+  // 👇 VIỆT HÓA TOÀN BỘ URL NAV LINKS
   const navLinks = [
     { name: "Trang chủ", path: "/" },
-    { name: "Blog", path: "/blog" },
-    { name: "Tin tức", path: "/news" },
-    { name: "Dự án", path: "/projects" },
-    { name: "Về NhatSoft", path: "/about" }, // Đổi NhatDev -> NhatSoft
-    { name: "Ủng hộ", path: "/donate" },
+    { name: "Blog", path: "/bai-viet" },
+    { name: "Tin tức", path: "/tin-tuc" }, // news -> tin-tuc
+    { name: "Dự án", path: "/du-an" }, // projects -> du-an
+    { name: "Về NhatSoft", path: "/gioi-thieu" }, // about -> gioi-thieu
+    { name: "Ủng hộ", path: "/ung-ho" }, // donate -> ung-ho
   ];
 
   return (
@@ -90,14 +90,12 @@ export default function Navbar() {
           href="/"
           className="text-2xl font-black text-blue-600 tracking-tight flex-shrink-0"
         >
-          {/* 👇 Đổi logo NhatDev -> NhatSoft */}
           NhatSoft<span className="text-gray-800 dark:text-white">.</span>
         </Link>
 
         {/* MENU DESKTOP */}
         <nav className="hidden md:flex gap-6 lg:gap-8 items-center">
           {navLinks.map((link) => {
-            // Logic xử lý active: Nếu là trang Blog có categoryId thì chỉ active khi khớp url
             const isActive =
               pathname === link.path ||
               (link.path !== "/" &&
@@ -164,7 +162,7 @@ export default function Navbar() {
                       avatarUrl ||
                       `https://ui-avatars.com/api/?name=${userName || "User"}&background=random`
                     }
-                    alt="Avatar"
+                    alt="Ảnh đại diện"
                     className="w-9 h-9 rounded-full object-cover border-2 border-transparent hover:border-blue-500 dark:hover:border-blue-400 transition-colors shadow-sm"
                   />
                 </button>
@@ -175,7 +173,6 @@ export default function Navbar() {
                       className="fixed inset-0 z-40"
                       onClick={() => setIsProfileMenuOpen(false)}
                     ></div>
-
                     <div className="absolute right-0 top-full mt-3 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden z-50 py-2 transform origin-top-right transition-all">
                       <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700 mb-1 bg-gray-50 dark:bg-gray-900/50">
                         <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">
@@ -187,7 +184,8 @@ export default function Navbar() {
                       </div>
 
                       <Link
-                        href="/profile"
+                        // 👇 VIỆT HÓA URL (profile -> ho-so)
+                        href="/ho-so"
                         onClick={() => setIsProfileMenuOpen(false)}
                         className="block px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       >
@@ -209,13 +207,15 @@ export default function Navbar() {
             ) : (
               <>
                 <Link
-                  href="/login"
+                  // 👇 VIỆT HÓA URL (login -> dang-nhap)
+                  href="/dang-nhap"
                   className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-blue-600 transition-colors px-2 ml-2"
                 >
                   Đăng nhập
                 </Link>
                 <Link
-                  href="/register"
+                  // 👇 VIỆT HÓA URL (register -> dang-ky)
+                  href="/dang-ky"
                   className="text-sm font-semibold bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-all shadow-sm"
                 >
                   Đăng ký
@@ -323,7 +323,8 @@ export default function Navbar() {
                 (isLoggedIn ? (
                   <>
                     <Link
-                      href="/profile"
+                      // 👇 VIỆT HÓA URL
+                      href="/ho-so"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="flex items-center justify-center gap-3 py-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
@@ -332,7 +333,7 @@ export default function Navbar() {
                           avatarUrl ||
                           `https://ui-avatars.com/api/?name=${userName || "User"}&background=random`
                         }
-                        alt="Avatar"
+                        alt="Ảnh đại diện"
                         className="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-gray-600 shadow-sm"
                       />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -351,14 +352,16 @@ export default function Navbar() {
                 ) : (
                   <>
                     <Link
-                      href="/login"
+                      // 👇 VIỆT HÓA URL
+                      href="/dang-nhap"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="text-center font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                       Đăng nhập
                     </Link>
                     <Link
-                      href="/register"
+                      // 👇 VIỆT HÓA URL
+                      href="/dang-ky"
                       onClick={() => setIsMobileMenuOpen(false)}
                       className="text-center font-semibold bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
                     >

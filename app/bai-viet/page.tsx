@@ -1,5 +1,6 @@
 // https://nhatdev.top
-// app/blog/page.tsx
+// app/bai-viet/page.tsx
+export const dynamic = "force-dynamic";
 import dayjs from "dayjs";
 import Link from "next/link";
 
@@ -10,7 +11,7 @@ interface PostDto {
   summary: string;
   thumbnailUrl: string;
   categoryName: string;
-  categorySlug: string; // Đảm bảo Backend trả về thêm trường này
+  categorySlug: string;
   createdAt: string;
   viewCount: number;
 }
@@ -23,12 +24,10 @@ interface CategoryTreeDto {
   children: CategoryTreeDto[];
 }
 
-// 👇 SỬA: Chấp nhận categorySlug để gọi API mới
 async function getPosts(categorySlug?: string): Promise<PostDto[]> {
   try {
     let url = `${process.env.NEXT_PUBLIC_API_URL}/Posts?PageSize=20&IsPublished=true`;
     if (categorySlug) {
-      // Gửi CategorySlug lên Backend để lọc cả cha lẫn con
       url += `&CategorySlug=${categorySlug}`;
     }
     const res = await fetch(url, { cache: "no-store" });
@@ -45,9 +44,7 @@ async function getCategoryTree(): Promise<CategoryTreeDto[]> {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/Categories/tree`,
-      {
-        cache: "no-store",
-      },
+      { cache: "no-store" },
     );
     if (!res.ok) return [];
     const json = await res.json();
@@ -89,8 +86,7 @@ const CategoryNode = ({
   return (
     <li className="mb-2">
       <Link
-        // 👇 SỬA: Dùng slug thay vì ID trên URL
-        href={`/blog?category=${category.slug}`}
+        href={`/bai-viet?category=${category.slug}`} // 👇 ĐÃ SỬA
         scroll={false}
         className={`flex items-center justify-between text-sm py-1.5 px-2 rounded-md transition-colors ${
           isActive
@@ -152,7 +148,7 @@ export default async function BlogPage({
               Danh mục
             </h2>
             <Link
-              href="/blog"
+              href="/bai-viet" // 👇 ĐÃ SỬA
               scroll={false}
               className={`block mb-4 text-sm font-medium py-1.5 px-2 rounded-md transition-colors ${
                 !currentCategorySlug
@@ -183,7 +179,7 @@ export default async function BlogPage({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {posts.map((post) => (
                 <Link
-                  href={`/blog/${post.slug}`}
+                  href={`/bai-viet/${post.slug}`} // 👇 ĐÃ SỬA
                   key={post.id}
                   className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300"
                 >

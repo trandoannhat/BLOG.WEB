@@ -1,5 +1,5 @@
 // https://nhatdev.top
-// app/blog/[slug]/page.tsx
+// app/bai-viet/[slug]/page.tsx
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -10,9 +10,7 @@ async function getPostDetail(slug: string): Promise<PostDto | null> {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/Posts/byslug/${slug}`,
-      {
-        cache: "no-store",
-      },
+      { cache: "no-store" },
     );
     if (!res.ok) return null;
     const json = await res.json();
@@ -22,7 +20,6 @@ async function getPostDetail(slug: string): Promise<PostDto | null> {
   }
 }
 
-// 👇 SỬA: Lấy bài liên quan bằng CategorySlug thay vì ID
 async function getRelatedPosts(
   categorySlug: string,
   currentPostId: string,
@@ -35,7 +32,6 @@ async function getRelatedPosts(
     if (!res.ok) return [];
     const json = await res.json();
     const posts = json.data || [];
-    // Lọc bỏ bài hiện tại
     return posts.filter((p: PostDto) => p.id !== currentPostId).slice(0, 3);
   } catch (error) {
     return [];
@@ -57,7 +53,7 @@ export async function generateMetadata({
     openGraph: {
       title: post.title,
       description: post.summary,
-      url: `https://nhatdev.top/blog/${post.slug}`,
+      url: `https://nhatdev.top/bai-viet/${post.slug}`,
       siteName: "NhatDev Blog",
       images: [{ url: post.thumbnailUrl || "" }],
       type: "article",
@@ -75,33 +71,31 @@ export default async function BlogPostPage({
 
   if (!post) notFound();
 
-  // 👇 SỬA: Truyền categorySlug (đảm bảo Backend trả về trường này trong chi tiết bài viết)
   const relatedPosts = await getRelatedPosts(post.categorySlug, post.id);
 
   return (
     <article className="max-w-4xl mx-auto py-10 px-4">
       <Link
-        href="/blog"
-        className="text-gray-500 hover:text-blue-600 transition-colors mb-8 inline-flex items-center font-medium"
+        href="/bai-viet"
+        className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors mb-8 inline-flex items-center font-medium"
       >
         &larr; Quay lại danh sách
       </Link>
 
       <header className="mb-10 text-center">
         <Link
-          // 👇 SỬA: Link ở danh mục bài viết chi tiết cũng dùng slug
-          href={`/blog?category=${post.categorySlug}`}
-          className="inline-block bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-sm font-bold uppercase mb-4 hover:bg-blue-100 transition"
+          href={`/bai-viet?category=${post.categorySlug}`}
+          className="inline-block bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 px-4 py-1.5 rounded-full text-sm font-bold uppercase mb-4 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition"
         >
           {post.categoryName}
         </Link>
-        <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+        <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight transition-colors">
           {post.title}
         </h1>
-        <div className="flex items-center justify-center text-gray-500 text-sm gap-4 font-medium">
+        <div className="flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm gap-4 font-medium">
           <span>
             Đăng bởi{" "}
-            <span className="text-gray-900">
+            <span className="text-gray-900 dark:text-white transition-colors">
               {post.authorName || "NhatDev"}
             </span>
           </span>
@@ -128,18 +122,18 @@ export default async function BlogPostPage({
       />
 
       {relatedPosts.length > 0 && (
-        <section className="border-t border-gray-200 pt-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-8">
+        <section className="border-t border-gray-200 dark:border-gray-800 pt-12">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-8 transition-colors">
             Bài viết cùng chủ đề
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {relatedPosts.map((related) => (
               <Link
-                href={`/blog/${related.slug}`}
+                href={`/bai-viet/${related.slug}`}
                 key={related.id}
-                className="group flex flex-col bg-white border border-gray-100 rounded-xl overflow-hidden hover:shadow-lg transition-all"
+                className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl overflow-hidden hover:shadow-lg transition-all"
               >
-                <div className="h-40 w-full bg-gray-100 overflow-hidden">
+                <div className="h-40 w-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
                   <img
                     src={
                       related.thumbnailUrl ||
@@ -150,10 +144,10 @@ export default async function BlogPostPage({
                   />
                 </div>
                 <div className="p-4 flex flex-col flex-1">
-                  <h4 className="font-bold text-gray-900 mb-2 group-hover:text-blue-600 line-clamp-2">
+                  <h4 className="font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 transition-colors">
                     {related.title}
                   </h4>
-                  <div className="text-xs text-gray-500 mt-auto">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-auto">
                     {dayjs(related.createdAt).format("DD/MM/YYYY")}
                   </div>
                 </div>

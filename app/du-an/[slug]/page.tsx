@@ -76,7 +76,8 @@ export default async function ProjectDetailPage({
   return (
     <div className="max-w-4xl mx-auto py-10 px-4 sm:px-6">
       <Link
-        href="/projects"
+        // 👇 VIỆT HÓA URL (projects -> du-an)
+        href="/du-an"
         className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-8 inline-block font-medium transition-colors"
       >
         &larr; Quay lại danh sách dự án

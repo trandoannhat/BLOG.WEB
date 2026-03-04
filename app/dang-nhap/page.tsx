@@ -4,79 +4,77 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const router = useRouter();
-  //  THÊM ĐOẠN NÀY VÀO (Guard kiểm tra đăng nhập)
 
+  // Guard kiểm tra đăng nhập
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) {
       router.push("/"); // Nếu có token (đã đăng nhập) thì đá văng về trang chủ
     }
   }, [router]);
-  //  KẾT THÚC ĐOẠN THÊM
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  // ĐÃ SỬA: Dùng email thay cho userName để khớp với LoginRequest bên .NET
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     setError("");
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Mật khẩu xác nhận không khớp.");
-      return;
-    }
-
-    setIsLoading(true);
-
     try {
+      // Gọi đúng đường dẫn /Account/authenticate của backend
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/Account/register`,
+        `${process.env.NEXT_PUBLIC_API_URL}/Account/authenticate`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fullName: formData.fullName,
-            email: formData.email,
-            password: formData.password,
-            // 👇 ĐÃ THÊM: Biến này bắt buộc để qua được ModelState của .NET
-            confirmPassword: formData.confirmPassword,
-          }),
+          body: JSON.stringify(formData),
         },
       );
 
       const json = await res.json();
 
+      // Bắt lỗi dựa trên thuộc tính Success của class ApiResponse
       if (!res.ok || json.success === false || json.Success === false) {
-        // 👇 ĐÃ SỬA: Hiển thị lỗi Validation chi tiết nếu có
-        let errorMessage = json.message || json.Message || "Đăng ký thất bại.";
-
-        if (json.errors) {
-          // Lấy lỗi đầu tiên trong danh sách lỗi trả về
-          const firstError = Object.values(json.errors)[0] as string[];
-          if (firstError && firstError.length > 0) {
-            errorMessage = firstError[0];
-          }
-        }
-
-        setError(errorMessage);
+        setError(
+          json.message ||
+            json.Message ||
+            "Thông tin đăng nhập không chính xác.",
+        );
         setIsLoading(false);
         return;
       }
 
-      // Đăng ký thành công
-      //   alert("Đăng ký thành công! Vui lòng đăng nhập.");
-      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
-      router.push("/login");
+      const responseData = json.data || json.Data;
+
+      // Lấy JWToken từ AuthenticationResponse
+      const token = responseData.jwToken || responseData.JWToken;
+      const userName = responseData.userName || responseData.UserName;
+
+      if (token) {
+        // Lưu token và tên user vào trình duyệt
+        localStorage.setItem("accessToken", token);
+        localStorage.setItem("userName", userName);
+        localStorage.setItem("avatarUrl", responseData.avatarUrl || "");
+
+        // BẮN THÔNG BÁO THÀNH CÔNG
+        toast.success("Đăng nhập thành công!");
+
+        // TRƯỚC KHI CHUYỂN TRANG - để reload lại menu
+        window.dispatchEvent(new Event("storage"));
+
+        // Chuyển hướng về trang chủ
+        router.push("/");
+        router.refresh();
+      } else {
+        toast.error("Lỗi xử lý Token từ hệ thống.");
+      }
     } catch (err) {
-      setError("Không thể kết nối đến máy chủ.");
+      toast.error("Không thể kết nối đến máy chủ!");
     } finally {
       setIsLoading(false);
     }
@@ -87,10 +85,10 @@ export default function RegisterPage() {
       <div className="max-w-md w-full bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
-            Đăng ký
+            Đăng nhập
           </h1>
           <p className="text-gray-500 dark:text-gray-400">
-            Tạo tài khoản mới để tham gia cộng đồng
+            Chào mừng trở lại với NhatDev Blog
           </p>
         </div>
 
@@ -100,26 +98,10 @@ export default function RegisterPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Họ và tên
-            </label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="Nguyễn Văn A"
-              value={formData.fullName}
-              onChange={(e) =>
-                setFormData({ ...formData, fullName: e.target.value })
-              }
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Email
+              Email đăng nhập
             </label>
             <input
               type="email"
@@ -149,38 +131,23 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Xác nhận mật khẩu
-            </label>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
-              placeholder="••••••••"
-              value={formData.confirmPassword}
-              onChange={(e) =>
-                setFormData({ ...formData, confirmPassword: e.target.value })
-              }
-            />
-          </div>
-
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl mt-2 transition-all disabled:opacity-70"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all flex justify-center items-center gap-2 disabled:opacity-70"
           >
-            {isLoading ? "Đang xử lý..." : "Tạo tài khoản"}
+            {isLoading ? "Đang xử lý..." : "Đăng nhập"}
           </button>
         </form>
 
         <div className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          Đã có tài khoản?{" "}
+          Chưa có tài khoản?{" "}
           <Link
-            href="/login"
+            // 👇 VIỆT HÓA URL (register -> dang-ky)
+            href="/dang-ky"
             className="text-blue-600 dark:text-blue-400 font-bold hover:underline"
           >
-            Đăng nhập
+            Đăng ký ngay
           </Link>
         </div>
       </div>

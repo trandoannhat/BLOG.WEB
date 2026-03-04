@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import dayjs from "dayjs";
 
@@ -76,43 +77,30 @@ export default async function HomePage() {
 
         <div className="relative z-10 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-6 tracking-tight leading-tight">
-            Tran Doan Nhat <br className="hidden md:block" />
+            TDN Dev <br className="hidden md:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 text-3xl md:text-5xl block mt-4">
-              Tech Lead & Solution Architect
+              Tech Lead & Kiến trúc sư Giải pháp
             </span>
           </h1>
+
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-10 leading-relaxed max-w-3xl mx-auto">
-            Chào mừng bạn đến với góc chia sẻ của NhatDev (Founder NhatSoft).
-            Tại đây, tôi chia sẻ các kinh nghiệm thực chiến về thiết kế kiến
-            trúc hệ thống (System Design), quản lý dự án và các giải pháp phần
-            mềm hiệu suất cao.
+            Chào mừng bạn đến với góc kỹ thuật của mình. Nơi chia sẻ tư duy
+            thiết kế hệ thống và các giải pháp phần mềm thực chiến trên nền tảng
+            .NET & Cloud với tư cách là <strong>Founder tại NhatSoft</strong>.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/contact"
+              href="/lien-he"
               className="w-full sm:w-auto px-8 py-4 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-1 transition-all flex items-center justify-center gap-2"
             >
-              Kết nối & Trao đổi
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
+              Hợp tác cùng mình
             </Link>
             <Link
-              href="/projects"
-              className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-bold hover:bg-gray-50 dark:hover:bg-gray-700 hover:-translate-y-1 transition-all"
+              href="/du-an"
+              className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-full font-bold hover:bg-gray-50 dark:hover:bg-gray-700 hover:-translate-y-1 transition-all shadow-sm"
             >
-              Xem dự án thực tế
+              Thư viện dự án
             </Link>
           </div>
         </div>
@@ -227,7 +215,8 @@ export default async function HomePage() {
             Case Study nổi bật
           </h2>
           <Link
-            href="/projects"
+            // 👇 VIỆT HÓA URL
+            href="/du-an"
             className="text-purple-600 dark:text-purple-400 font-semibold hover:underline hidden sm:block"
           >
             Tất cả dự án &rarr;
@@ -241,9 +230,9 @@ export default async function HomePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProjects.map((project) => (
-              // 👇 ĐÃ SỬA: Đổi từ project.id sang project.slug
               <Link
-                href={`/projects/${project.slug}`}
+                // 👇 VIỆT HÓA URL
+                href={`/du-an/${project.slug}`}
                 key={project.id}
                 className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
               >
@@ -292,7 +281,8 @@ export default async function HomePage() {
             Kinh nghiệm thực chiến
           </h2>
           <Link
-            href="/blog"
+            // 👇 VIỆT HÓA URL
+            href="/bai-viet"
             className="text-blue-600 dark:text-blue-400 font-semibold hover:underline hidden sm:block"
           >
             Đọc thêm &rarr;
@@ -307,7 +297,8 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {recentPosts.map((post) => (
               <Link
-                href={`/blog/${post.slug}`}
+                // 👇 VIỆT HÓA URL
+                href={`/bai-viet/${post.slug}`}
                 key={post.id}
                 className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-blue-900/10 hover:-translate-y-2 transition-all duration-300"
               >
@@ -374,7 +365,8 @@ export default async function HomePage() {
             kết nối với tôi!
           </p>
           <Link
-            href="/contact"
+            // 👇 VIỆT HÓA URL
+            href="/lien-he"
             className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-500 transition-colors shadow-lg"
           >
             <svg
