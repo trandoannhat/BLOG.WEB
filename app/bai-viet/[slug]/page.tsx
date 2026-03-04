@@ -1,5 +1,6 @@
 // https://nhatdev.top
 // app/bai-viet/[slug]/page.tsx
+export const dynamic = "force-dynamic";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";

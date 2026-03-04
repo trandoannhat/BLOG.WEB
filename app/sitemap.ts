@@ -1,4 +1,5 @@
 // app/sitemap.ts
+export const dynamic = "force-dynamic";
 import { MetadataRoute } from "next";
 
 interface SitemapDto {
