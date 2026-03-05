@@ -1,6 +1,7 @@
 // export const dynamic = "force-dynamic";
 import Link from "next/link";
 import dayjs from "dayjs";
+import PartnerAds from "@/components/PartnerAds"; // 👈 Import component quảng cáo
 
 // ==========================================
 // 1. ĐỊNH NGHĨA KIỂU DỮ LIỆU
@@ -18,7 +19,7 @@ interface PostDto {
 
 interface ProjectDto {
   id: string;
-  slug: string; // 👈 BẮT BUỘC: Đã thêm slug
+  slug: string;
   name: string;
   description: string;
   thumbnailUrl?: string;
@@ -215,7 +216,6 @@ export default async function HomePage() {
             Case Study nổi bật
           </h2>
           <Link
-            // 👇 VIỆT HÓA URL
             href="/du-an"
             className="text-purple-600 dark:text-purple-400 font-semibold hover:underline hidden sm:block"
           >
@@ -231,7 +231,6 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProjects.map((project) => (
               <Link
-                // 👇 VIỆT HÓA URL
                 href={`/du-an/${project.slug}`}
                 key={project.id}
                 className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
@@ -281,7 +280,6 @@ export default async function HomePage() {
             Kinh nghiệm thực chiến
           </h2>
           <Link
-            // 👇 VIỆT HÓA URL
             href="/bai-viet"
             className="text-blue-600 dark:text-blue-400 font-semibold hover:underline hidden sm:block"
           >
@@ -297,7 +295,6 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {recentPosts.map((post) => (
               <Link
-                // 👇 VIỆT HÓA URL
                 href={`/bai-viet/${post.slug}`}
                 key={post.id}
                 className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl dark:hover:shadow-blue-900/10 hover:-translate-y-2 transition-all duration-300"
@@ -352,6 +349,27 @@ export default async function HomePage() {
         )}
       </section>
 
+      {/* --- SECTION QUẢNG CÁO ĐỐI TÁC (Tích hợp PartnerAds Component) --- */}
+      <section className="py-10 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+          <div>
+            <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
+              <span className="w-8 h-1 bg-emerald-500 rounded-full"></span>
+              Công cụ & Đối tác khuyên dùng
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
+              Những dịch vụ chất lượng mà hệ thống NhatDev đang trực tiếp sử
+              dụng và đồng hành.
+            </p>
+          </div>
+        </div>
+
+        {/* Gọi component PartnerAds lấy quảng cáo ở vị trí số 3 (HomeBanner) */}
+        <div className="max-w-4xl">
+          <PartnerAds position={3} />
+        </div>
+      </section>
+
       {/* --- SECTION 5: CALL TO ACTION (CTA) --- */}
       <section className="py-16 mt-12 bg-gray-900 dark:bg-gray-800 rounded-3xl text-center px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
@@ -365,7 +383,6 @@ export default async function HomePage() {
             kết nối với tôi!
           </p>
           <Link
-            // 👇 VIỆT HÓA URL
             href="/lien-he"
             className="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-500 transition-colors shadow-lg"
           >
