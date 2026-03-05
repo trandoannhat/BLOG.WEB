@@ -1,25 +1,93 @@
-// app/lien-he/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { settingService } from "@/services/setting.service";
+
+// Định nghĩa kiểu dữ liệu cho form
+interface ContactForm {
+  name: string;
+  email: string;
+  phone: string;
+  service: string;
+  message: string;
+}
 
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
 
-  // Hàm xử lý khi submit form
+  // State lưu trữ thông tin cấu hình từ Admin
+  const [contactInfo, setContactInfo] = useState({
+    phone: "0907.011.886",
+    email: "contact@nhatsoft.com",
+    address: "TP. Hồ Chí Minh, Việt Nam",
+    mapUrl:
+      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.324... (Link mặc định)",
+  });
+
+  const [formData, setFormData] = useState<ContactForm>({
+    name: "",
+    email: "",
+    phone: "",
+    service: "system-design",
+    message: "",
+  });
+
+  // Tải cấu hình từ API khi component mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const res = await settingService.getSettings();
+      if (res?.data) {
+        // Giả sử API trả về mảng [{ key: "ContactPhone", value: "090..." }, ...]
+        const settings = res.data;
+
+        // Helper function để tìm value theo key
+        const getValue = (keyName: string) =>
+          settings.find((s: any) => s.key === keyName)?.value;
+
+        setContactInfo((prev) => ({
+          phone: getValue("ContactPhone") || prev.phone,
+          email: getValue("ContactEmail") || prev.email,
+          address: getValue("ContactAddress") || prev.address,
+          mapUrl: getValue("ContactMapUrl") || prev.mapUrl,
+        }));
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    // Giả lập thời gian gửi (Sau này bạn nối API .NET tại đây)
-    setTimeout(() => {
-      toast.success(
-        "Gửi yêu cầu thành công! NhatSoft sẽ liên hệ lại sớm nhất.",
-      );
+    try {
+      // CHÚ Ý: Chỗ này sau này bạn nối với API .NET (Ví dụ: fetch POST /Contacts)
+      // await fetch(`${process.env.NEXT_PUBLIC_API_URL}/Contacts`, { ... })
+
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // Giả lập call API
+      toast.success("Gửi yêu cầu thành công! Mình sẽ liên hệ lại sớm nhất.");
+
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        service: "system-design",
+        message: "",
+      });
+    } catch (error) {
+      toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
+    } finally {
       setLoading(false);
-      (e.target as HTMLFormElement).reset(); // Xóa form sau khi gửi
-    }, 1500);
+    }
   };
 
   return (
@@ -69,7 +137,7 @@ export default function ContactPage() {
                     Hotline / Zalo
                   </p>
                   <p className="text-lg font-bold text-gray-900 dark:text-white transition-colors">
-                    0907.011.886
+                    {contactInfo.phone}
                   </p>
                 </div>
               </div>
@@ -96,7 +164,7 @@ export default function ContactPage() {
                     Email
                   </p>
                   <p className="text-lg font-bold text-gray-900 dark:text-white transition-colors">
-                    contact@nhatsoft.com
+                    {contactInfo.email}
                   </p>
                 </div>
               </div>
@@ -129,25 +197,31 @@ export default function ContactPage() {
                     Trụ sở
                   </p>
                   <p className="text-lg font-bold text-gray-900 dark:text-white transition-colors">
-                    TP. Hồ Chí Minh, Việt Nam
+                    {contactInfo.address}
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* BẢN ĐỒ GOOGLE MAP */}
+          {/* BẢN ĐỒ GOOGLE MAP (URL Động) */}
           <div className="w-full h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative transition-colors">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.495208535266!2d106.6586!3d10.7711!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTDCsDQ2JzE2LjAiTiAxMDbCsDM5JzMxLjAiRQ!5e0!3m2!1svi!2svn!4v1646399999999!5m2!1svi!2svn"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen={true}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Bản đồ NhatSoft"
-            ></iframe>
+            {contactInfo.mapUrl.includes("http") ? (
+              <iframe
+                src={contactInfo.mapUrl}
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen={true}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Bản đồ NhatSoft"
+              ></iframe>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm">
+                Đang tải bản đồ...
+              </div>
+            )}
           </div>
         </div>
 
@@ -167,6 +241,8 @@ export default function ContactPage() {
               <input
                 type="text"
                 id="name"
+                value={formData.name}
+                onChange={handleChange}
                 required
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                 placeholder="Nhập tên của bạn..."
@@ -184,6 +260,8 @@ export default function ContactPage() {
                 <input
                   type="email"
                   id="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   required
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                   placeholder="name@company.com"
@@ -199,6 +277,8 @@ export default function ContactPage() {
                 <input
                   type="tel"
                   id="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                   placeholder="09xx.xxx.xxx"
                 />
@@ -214,6 +294,8 @@ export default function ContactPage() {
               </label>
               <select
                 id="service"
+                value={formData.service}
+                onChange={handleChange}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               >
                 <option value="system-design">
@@ -234,6 +316,8 @@ export default function ContactPage() {
               </label>
               <textarea
                 id="message"
+                value={formData.message}
+                onChange={handleChange}
                 required
                 rows={5}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
