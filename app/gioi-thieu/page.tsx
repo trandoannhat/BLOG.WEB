@@ -1,6 +1,61 @@
+// export const dynamic = "force-dynamic";
+import { Metadata } from "next";
 import Link from "next/link";
 
-export default function AboutPage() {
+// --- 1. ĐỊNH NGHĨA DTO CHO SYSTEM SETTINGS ---
+// Cập nhật lại key cho khớp chính xác với Admin Panel của bạn
+interface SystemSettingDto {
+  siteName?: string;
+  ContactEmail?: string; // Lưu ý: Admin viết hoa chữ C
+  ContactPhone?: string;
+  ContactAddress?: string;
+  facebookUrl?: string;
+  zaloUrl?: string; // Đã thêm Zalo
+  githubUrl?: string;
+  aboutContent?: string; // Dự phòng nếu sau này bạn thêm Editor vào Admin
+}
+
+// --- 2. FETCH DỮ LIỆU TỪ API VÀ ÉP KIỂU VỀ OBJECT ---
+async function getSystemSettings(): Promise<SystemSettingDto | null> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/SystemSettings`,
+      {
+        next: { revalidate: 3600 },
+      },
+    );
+    if (!res.ok) return null;
+
+    const json = await res.json();
+    const rawData = json.data || json;
+
+    // Chuyển mảng [{key: "...", value: "..."}] thành Object {key: value} giống hệt bên Admin
+    if (Array.isArray(rawData)) {
+      const settingsObject = rawData.reduce(
+        (acc: any, curr: any) => ({ ...acc, [curr.key]: curr.value }),
+        {},
+      );
+      return settingsObject as SystemSettingDto;
+    }
+
+    return rawData as SystemSettingDto;
+  } catch (error) {
+    console.error("Lỗi khi tải SystemSettings:", error);
+    return null;
+  }
+}
+
+// --- 3. TỰ ĐỘNG SEO ---
+export const metadata: Metadata = {
+  title: "Về NhatSoft | TDN Dev - Solution Architect",
+  description:
+    "Thông tin giới thiệu về Founder Trần Doãn Nhất và định hướng của NhatSoft.",
+};
+
+// --- 4. GIAO DIỆN CHÍNH ---
+export default async function AboutPage() {
+  const settings = await getSystemSettings();
+
   return (
     <div className="max-w-6xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
       {/* HEADER: Tiêu đề trang */}
@@ -15,22 +70,24 @@ export default function AboutPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+        {/* ========================================================= */}
         {/* CỘT TRÁI: Ảnh Avatar & Thông tin cơ bản */}
+        {/* ========================================================= */}
         <div className="lg:col-span-4">
           <div className="sticky top-24 flex flex-col items-center lg:items-start text-center lg:text-left">
             <div className="relative group mb-8">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-60 transition duration-1000 group-hover:duration-200"></div>
               <div className="relative w-56 h-56 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-2xl">
                 <img
-                  src="https://images.unsplash.com/photo-1537511446984-935f663eb1f4?auto=format&fit=crop&q=80&w=400&h=400"
-                  alt="Trần Doãn Nhất - NhatSoft"
+                  src="/images/avatar.jpg" // 👈 Ảnh cá nhân của bạn
+                  alt="Trần Doãn Nhất - NhatSoft Founder"
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
             </div>
 
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">
-              Trần Doãn Nhất
+              {settings?.siteName || "Trần Doãn Nhất"}
             </h2>
             <p className="text-blue-600 dark:text-blue-400 font-bold text-lg mb-4">
               Founder @ NhatSoft
@@ -42,8 +99,9 @@ export default function AboutPage() {
             </p>
 
             <div className="w-full flex flex-col gap-4">
+              {/* Nút Liên hệ: Lấy ContactEmail từ DB */}
               <a
-                href="mailto:doannhatit@gmail.com"
+                href={`mailto:${settings?.ContactEmail || "doannhatit@gmail.com"}`}
                 className="w-full flex justify-center items-center gap-2 px-6 py-3.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 <svg
@@ -62,10 +120,15 @@ export default function AboutPage() {
                 Liên hệ hợp tác
               </a>
 
+              {/* Các nút Mạng xã hội */}
               <div className="flex justify-center lg:justify-start gap-4 mt-2">
+                {/* Nút GitHub */}
                 <a
-                  href="#"
+                  href={settings?.githubUrl || "#"}
+                  target="_blank"
+                  rel="noreferrer"
                   className="p-3 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors"
+                  title="GitHub"
                 >
                   <span className="sr-only">GitHub</span>
                   <svg
@@ -80,11 +143,40 @@ export default function AboutPage() {
                     />
                   </svg>
                 </a>
+
+                {/* Nút Zalo (Thay cho LinkedIn) */}
                 <a
-                  href="#"
-                  className="p-3 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors"
+                  href={settings?.zaloUrl || "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors"
+                  title="Zalo"
                 >
-                  <span className="sr-only">LinkedIn</span>
+                  <span className="sr-only">Zalo</span>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
+                  </svg>
+                </a>
+
+                {/* Nút Facebook */}
+                <a
+                  href={settings?.facebookUrl || "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="p-3 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-colors"
+                  title="Facebook"
+                >
+                  <span className="sr-only">Facebook</span>
                   <svg
                     className="w-6 h-6"
                     fill="currentColor"
@@ -92,7 +184,7 @@ export default function AboutPage() {
                   >
                     <path
                       fillRule="evenodd"
-                      d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
+                      d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
                       clipRule="evenodd"
                     />
                   </svg>
@@ -102,33 +194,44 @@ export default function AboutPage() {
           </div>
         </div>
 
+        {/* ========================================================= */}
         {/* CỘT PHẢI: Chi tiết & Kỹ năng */}
+        {/* ========================================================= */}
         <div className="lg:col-span-8 space-y-16">
           <section>
             <h3 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 flex items-center gap-3 transition-colors">
               <span className="text-4xl">👋</span> Xin chào!
             </h3>
-            <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-300 leading-relaxed max-w-none transition-colors">
-              <p>
-                Mình là <strong>Trần Doãn Nhất</strong>, người đứng sau thương
-                hiệu <strong>NhatSoft</strong>. Với nền tảng vững chắc và nhiều
-                năm "chinh chiến" qua các dự án từ Front-end đến Back-end, mình
-                luôn khao khát dùng công nghệ để giải quyết các bài toán hóc búa
-                của doanh nghiệp.
-              </p>
-              <p>
-                Đặc sản của mình là thiết kế kiến trúc hệ thống (System Design),
-                tối ưu hóa database, và biến những luồng nghiệp vụ rối rắm thành
-                các khối mã nguồn sạch sẽ, dễ bảo trì. Mình tin rằng code không
-                chỉ để máy chạy, mà còn để con người (các developer khác) đọc và
-                tiếp nối.
-              </p>
-              <p>
-                Ngoài công việc lập trình, mình xem Blog này như một "ngôi nhà
-                số" để chia sẻ lại những vấp ngã, những kinh nghiệm thực chiến
-                đắt giá. Hy vọng những bài viết của NhatSoft sẽ giúp bạn tiết
-                kiệm được vài giờ hì hục debug!
-              </p>
+
+            <div className="prose prose-lg dark:prose-invert text-gray-600 dark:text-gray-300 leading-relaxed max-w-none transition-colors prose-strong:text-blue-600 dark:prose-strong:text-blue-400">
+              {settings?.aboutContent ? (
+                <div
+                  dangerouslySetInnerHTML={{ __html: settings.aboutContent }}
+                />
+              ) : (
+                <>
+                  <p>
+                    Mình là <strong>Trần Doãn Nhất</strong>, người đứng sau
+                    thương hiệu <strong>NhatSoft</strong>. Với nền tảng vững
+                    chắc và nhiều năm "chinh chiến" qua các dự án từ Front-end
+                    đến Back-end, mình luôn khao khát dùng công nghệ để giải
+                    quyết các bài toán hóc búa của doanh nghiệp.
+                  </p>
+                  <p>
+                    Đặc sản của mình là thiết kế kiến trúc hệ thống (System
+                    Design), tối ưu hóa database, và biến những luồng nghiệp vụ
+                    rối rắm thành các khối mã nguồn sạch sẽ, dễ bảo trì. Mình
+                    tin rằng code không chỉ để máy chạy, mà còn để con người
+                    (các developer khác) đọc và tiếp nối.
+                  </p>
+                  <p>
+                    Ngoài công việc lập trình, mình xem Blog này như một "ngôi
+                    nhà số" để chia sẻ lại những vấp ngã, những kinh nghiệm thực
+                    chiến đắt giá. Hy vọng những bài viết của NhatSoft sẽ giúp
+                    bạn tiết kiệm được vài giờ hì hục debug!
+                  </p>
+                </>
+              )}
             </div>
           </section>
 
