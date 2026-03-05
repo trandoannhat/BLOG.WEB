@@ -5,23 +5,27 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
-// THÊM IMPORT THƯ VIỆN GOOGLE ANALYTICS
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Toaster } from "react-hot-toast";
 
-const inter = Inter({ subsets: ["latin"] });
+// Bổ sung subset vietnamese để font hiển thị dấu chuẩn xác nhất
+const inter = Inter({ subsets: ["latin", "vietnamese"] });
 
 export const metadata: Metadata = {
-  // 👇 ĐÃ CẬP NHẬT: Tiêu đề mang đậm chất cá nhân chuyên gia
-  title: "NhatDev | Tech Lead & Solution Architect",
+  // BẮT BUỘC: Khai báo base URL để Next.js xử lý hình ảnh và link SEO
+  metadataBase: new URL("https://nhatdev.top"),
 
-  // 👇 ĐÃ CẬP NHẬT: Mô tả nhấn mạnh vào kinh nghiệm cá nhân, tư duy hệ thống
+  // TỐI ƯU TITLE: Trang chủ sẽ dùng default, các trang con sẽ tự động ghép với template
+  title: {
+    default: "NhatDev | Tech Lead & Solution Architect",
+    template: "%s | NhatDev",
+  },
+
   description:
-    "Blog cá nhân của NhatDev (Trần Doãn Nhất). Nơi chia sẻ kinh nghiệm thực chiến về thiết kế kiến trúc hệ thống (System Design), quản lý dự án (Tech Lead), và phát triển phần mềm hiệu suất cao với .NET, Next.js & Cloud.",
+    "Góc kỹ thuật của NhatDev. Nơi chia sẻ kinh nghiệm thực chiến về thiết kế kiến trúc hệ thống (System Design), quản lý dự án (Tech Lead), và phát triển phần mềm hiệu suất cao với .NET, Next.js & Cloud.",
 
-  // 👇 ĐÃ CẬP NHẬT: Từ khóa kết hợp giữa thương hiệu cá nhân và chức danh chuyên gia
   keywords: [
-    "Trần Doãn Nhất",
+    "TDN Dev",
     "NhatDev",
     "NhatSoft",
     "Tech Lead",
@@ -33,7 +37,17 @@ export const metadata: Metadata = {
     "Tech Blog",
   ],
 
-  // NƠI ĐIỀN MÃ XÁC MINH GOOGLE SEARCH CONSOLE
+  // BỔ SUNG OPEN GRAPH: Giúp link hiển thị đẹp khi share Zalo/Facebook/LinkedIn
+  openGraph: {
+    title: "NhatDev | Tech Lead & Solution Architect",
+    description:
+      "Khám phá các bài viết chuyên sâu về System Design, .NET và Next.js",
+    url: "https://nhatdev.top",
+    siteName: "NhatDev Blog",
+    locale: "vi_VN",
+    type: "website",
+  },
+
   verification: {
     google: "GBMNwm1BLNsPhjR3cJE4iNw3AsXEYSKPfMoItU65Bm0",
   },
@@ -50,32 +64,35 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${inter.className} bg-gray-50 text-gray-800 dark:bg-gray-900 dark:text-gray-100 flex flex-col min-h-screen transition-colors duration-300`}
       >
-        {/* ĐẶT TOASTER Ở ĐÂY (Nó sẽ hiển thị thông báo ở góc trên bên phải) */}
-        <Toaster position="top-right" reverseOrder={false} />
-
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
+          {/* Đưa Toaster vào trong ThemeProvider và thêm class để hỗ trợ Dark Mode */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              className:
+                "dark:bg-gray-800 dark:text-white dark:border dark:border-gray-700",
+            }}
+          />
+
           <Navbar />
 
           <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-10">
             {children}
           </main>
 
-          {/* FOOTER */}
           <footer className="bg-white dark:bg-gray-900 border-t dark:border-gray-800 py-8 mt-auto transition-colors duration-300 text-center">
             <div className="max-w-6xl mx-auto px-6 text-gray-500 dark:text-gray-400 text-sm">
-              {/* 👇 ĐÃ CẬP NHẬT: Footer thể hiện tính cá nhân nhưng vẫn giữ lại NhatSoft làm tiền đề */}
               © {new Date().getFullYear()} NhatDev. Phát triển và quản trị bởi
               NhatSoft. Tất cả quyền được bảo lưu.
             </div>
           </footer>
         </ThemeProvider>
 
-        {/* NƠI ĐIỀN MÃ GOOGLE ANALYTICS */}
         <GoogleAnalytics gaId="G-M420J9CRMP" />
       </body>
     </html>
