@@ -1,3 +1,4 @@
+// app/lien-he/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -21,8 +22,7 @@ export default function ContactPage() {
     phone: "0907.011.886",
     email: "contact@nhatsoft.com",
     address: "TP. Hồ Chí Minh, Việt Nam",
-    mapUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.324... (Link mặc định)",
+    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.324...", // Link mặc định
   });
 
   const [formData, setFormData] = useState<ContactForm>({
@@ -38,7 +38,6 @@ export default function ContactPage() {
     const fetchSettings = async () => {
       const res = await settingService.getSettings();
       if (res?.data) {
-        // Giả sử API trả về mảng [{ key: "ContactPhone", value: "090..." }, ...]
         const settings = res.data;
 
         // Helper function để tìm value theo key
@@ -64,27 +63,70 @@ export default function ContactPage() {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  // 👇 HÀM XỬ LÝ GỌI API THẬT
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // CHÚ Ý: Chỗ này sau này bạn nối với API .NET (Ví dụ: fetch POST /Contacts)
-      // await fetch(`${process.env.NEXT_PUBLIC_API_URL}/Contacts`, { ... })
+      // 1. Chuẩn bị dữ liệu gửi lên (Map các field cho khớp với CreateContactDto bên C#)
+      const payload = {
+        fullName: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        subject: formData.service, // 👈 ĐÃ SỬA: Gửi nhãn 'subject' lên C#, lấy giá trị từ 'formData.service'
+        message: formData.message,
+      };
 
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Giả lập call API
-      toast.success("Gửi yêu cầu thành công! Mình sẽ liên hệ lại sớm nhất.");
-
-      // Reset form
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        service: "system-design",
-        message: "",
+      // 2. Gọi API POST đến Backend .NET
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/Contacts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
+
+      // Lấy data trước để đọc chi tiết lỗi nếu có
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error("Chi tiết lỗi từ .NET:", data);
+        let errorMsg = "Lỗi kết nối đến máy chủ";
+        if (data.errors) {
+          const firstErrorKey = Object.keys(data.errors)[0];
+          errorMsg = data.errors[firstErrorKey][0];
+        } else if (data.message) {
+          errorMsg = data.message;
+        }
+        toast.error(`Từ chối: ${errorMsg}`);
+        return; // Dừng lại không làm tiếp
+      }
+
+      // 3. Xử lý kết quả trả về (Bắt class ApiResponse từ .NET)
+      const isSuccess =
+        data?.succeeded || data?.success || data?.isSuccess || res.ok;
+
+      if (isSuccess) {
+        toast.success(
+          data?.message ||
+            "Gửi yêu cầu thành công! NhatSoft sẽ liên hệ lại sớm nhất.",
+        );
+
+        // Reset form sau khi gửi thành công
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          service: "system-design",
+          message: "",
+        });
+      } else {
+        toast.error(data?.message || "Gửi thất bại, vui lòng thử lại sau!");
+      }
     } catch (error) {
-      toast.error("Có lỗi xảy ra, vui lòng thử lại sau!");
+      console.error("Lỗi gửi liên hệ:", error);
+      toast.error("Hệ thống đang bận, vui lòng thử lại sau!");
     } finally {
       setLoading(false);
     }
@@ -206,7 +248,7 @@ export default function ContactPage() {
 
           {/* BẢN ĐỒ GOOGLE MAP (URL Động) */}
           <div className="w-full h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm relative transition-colors">
-            {contactInfo.mapUrl.includes("http") ? (
+            {contactInfo.mapUrl?.includes("http") ? (
               <iframe
                 src={contactInfo.mapUrl}
                 width="100%"
