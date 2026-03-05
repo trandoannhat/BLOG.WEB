@@ -1,9 +1,12 @@
 // export const dynamic = "force-dynamic";
 import Link from "next/link";
 
+// 👇 IMPORT COMPONENT QUẢNG CÁO
+import PartnerAds from "@/components/PartnerAds";
+
 interface ProjectDto {
   id: string;
-  slug: string; // 👈 ĐÃ THÊM: Bắt buộc phải có để lấy dữ liệu từ API
+  slug: string;
   name: string;
   clientName?: string;
   description: string;
@@ -35,7 +38,7 @@ export default async function ProjectsPage() {
   const projects = await getProjects();
 
   return (
-    <div className="py-8">
+    <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6">
       <div className="text-center max-w-2xl mx-auto mb-16">
         <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
           Dự án nổi bật
@@ -54,10 +57,9 @@ export default async function ProjectsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {projects.map((project) => (
             <div
-              key={project.id} // Key vẫn dùng ID cho độc nhất (React rules)
+              key={project.id}
               className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-300"
             >
-              {/* 👇 VIỆT HÓA URL (projects -> du-an) */}
               <Link
                 href={`/du-an/${project.slug}`}
                 className="flex flex-col flex-1 cursor-pointer"
@@ -135,7 +137,6 @@ export default async function ProjectsPage() {
                   )}
                   {/* Nút Xem chi tiết nếu không có cả 2 link ngoài */}
                   {!project.liveDemoUrl && !project.sourceCodeUrl && (
-                    // 👇 VIỆT HÓA URL (projects -> du-an)
                     <Link
                       href={`/du-an/${project.slug}`}
                       className="flex-1 text-center py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 rounded-lg text-sm font-semibold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
@@ -149,6 +150,22 @@ export default async function ProjectsPage() {
           ))}
         </div>
       )}
+
+      {/* 👇 THÊM SECTION QUẢNG CÁO DƯỚI CÙNG DANH SÁCH (Position 4) */}
+      <section className="mt-20 pt-16 border-t border-gray-200 dark:border-gray-800">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            Công cụ & Nền tảng Đề xuất
+          </h2>
+          <p className="text-gray-500 mt-2">
+            Các dịch vụ mình đang sử dụng để vận hành các dự án trên
+          </p>
+        </div>
+        <div className="max-w-4xl mx-auto">
+          {/* Nhớ vào Admin tạo quảng cáo với vị trí là "Trang Công cụ" nhé */}
+          <PartnerAds position={4} />
+        </div>
+      </section>
     </div>
   );
 }
