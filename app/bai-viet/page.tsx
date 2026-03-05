@@ -1,8 +1,9 @@
-// https://nhatdev.top
-// app/bai-viet/page.tsx ....
 // export const dynamic = "force-dynamic";
 import dayjs from "dayjs";
 import Link from "next/link";
+
+// 👇 IMPORT COMPONENT QUẢNG CÁO
+import PartnerAds from "@/components/PartnerAds";
 
 interface PostDto {
   id: string;
@@ -86,7 +87,7 @@ const CategoryNode = ({
   return (
     <li className="mb-2">
       <Link
-        href={`/bai-viet?category=${category.slug}`} // 👇 ĐÃ SỬA
+        href={`/bai-viet?category=${category.slug}`}
         scroll={false}
         className={`flex items-center justify-between text-sm py-1.5 px-2 rounded-md transition-colors ${
           isActive
@@ -142,34 +143,47 @@ export default async function BlogPage({
       </div>
 
       <div className="flex flex-col md:flex-row gap-8">
+        {/* CỘT TRÁI (SIDEBAR) */}
         <aside className="w-full md:w-1/4 flex-shrink-0">
-          <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm sticky top-24">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-800 pb-3">
-              Danh mục
-            </h2>
-            <Link
-              href="/bai-viet" // 👇 ĐÃ SỬA
-              scroll={false}
-              className={`block mb-4 text-sm font-medium py-1.5 px-2 rounded-md transition-colors ${
-                !currentCategorySlug
-                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold"
-                  : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
-              }`}
-            >
-              Tất cả bài viết
-            </Link>
-            <ul className="space-y-1">
-              {activeCategories.map((cat) => (
-                <CategoryNode
-                  key={cat.id}
-                  category={cat}
-                  currentSlug={currentCategorySlug}
-                />
-              ))}
-            </ul>
+          <div className="sticky top-24 space-y-6">
+            {/* Box Danh mục bài viết */}
+            <div className="bg-white dark:bg-gray-900 p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b border-gray-100 dark:border-gray-800 pb-3">
+                Danh mục
+              </h2>
+              <Link
+                href="/bai-viet"
+                scroll={false}
+                className={`block mb-4 text-sm font-medium py-1.5 px-2 rounded-md transition-colors ${
+                  !currentCategorySlug
+                    ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold"
+                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-blue-600 dark:hover:text-blue-400"
+                }`}
+              >
+                Tất cả bài viết
+              </Link>
+              <ul className="space-y-1">
+                {activeCategories.map((cat) => (
+                  <CategoryNode
+                    key={cat.id}
+                    category={cat}
+                    currentSlug={currentCategorySlug}
+                  />
+                ))}
+              </ul>
+            </div>
+
+            {/* 👇 THÊM BOX QUẢNG CÁO DỌC Ở DƯỚI MENU DANH MỤC */}
+            <div className="hidden md:block">
+              <div className="font-bold text-gray-900 dark:text-white text-lg mb-4 border-l-4 border-blue-500 pl-3">
+                Tài trợ
+              </div>
+              <PartnerAds position={1} />
+            </div>
           </div>
         </aside>
 
+        {/* CỘT PHẢI (DANH SÁCH BÀI VIẾT) */}
         <main className="w-full md:w-3/4">
           {posts.length === 0 ? (
             <div className="text-center text-gray-500 py-20 border-2 border-dashed border-gray-200 rounded-2xl bg-white dark:bg-gray-800">
@@ -179,7 +193,7 @@ export default async function BlogPage({
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {posts.map((post) => (
                 <Link
-                  href={`/bai-viet/${post.slug}`} // 👇 ĐÃ SỬA
+                  href={`/bai-viet/${post.slug}`}
                   key={post.id}
                   className="group flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300"
                 >
